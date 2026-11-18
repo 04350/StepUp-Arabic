@@ -58,6 +58,7 @@ func newAudioHandler(files fs.FS) http.Handler {
 		w.Header().Set("Content-Type", contentType)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Header().Set("Accept-Ranges", "bytes")
 		http.ServeContent(w, r, path.Base(assetPath), time.Time{}, bytes.NewReader(data))
 	})
 }
