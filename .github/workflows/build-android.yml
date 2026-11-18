@@ -131,8 +131,8 @@ jobs:
             sleep 5
             adb shell pidof com.stepuparabic.app
             adb shell dumpsys activity activities | grep -q "com.stepuparabic.app/.MainActivity"
-            adb shell run-as com.stepuparabic.app test -s files/stepuparabic-progress.json
             adb shell run-as com.stepuparabic.app cat files/stepuparabic-progress.json > /tmp/stepup-progress-first.json
+            test -s /tmp/stepup-progress-first.json
             grep -q '"ms-a1"' /tmp/stepup-progress-first.json
             grep -q '"activeTrack":"spoken"' /tmp/stepup-progress-first.json
             adb shell am force-stop com.stepuparabic.app
@@ -140,6 +140,7 @@ jobs:
             sleep 5
             adb logcat -d -s StepUpArabic:I | grep -q 'SAVE_SMOKE.*PERSISTENCE_RESTORED'
             adb shell run-as com.stepuparabic.app cat files/stepuparabic-progress.json > /tmp/stepup-progress-after-restart.json
+            test -s /tmp/stepup-progress-after-restart.json
             grep -q '"ms-a1"' /tmp/stepup-progress-after-restart.json
             grep -q '"activeTrack":"spoken"' /tmp/stepup-progress-after-restart.json
             ! adb logcat -d -s AndroidRuntime:E | grep -q "FATAL EXCEPTION"
