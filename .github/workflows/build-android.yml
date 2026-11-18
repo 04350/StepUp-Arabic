@@ -72,6 +72,7 @@ jobs:
           test "$(wc -c < android/app/src/main/assets/index.html)" -gt 10000
           mkdir -p android/app/src/main/assets/audio
           cp audio/ATTRIBUTION.md android/app/src/main/assets/audio/ATTRIBUTION.md
+          cp audio/manifest.json android/app/src/main/assets/audio/manifest.json
           find audio -maxdepth 1 -type f -name "*.wav" -exec cp {} android/app/src/main/assets/audio/ \;
 
       - name: Build Android APK
@@ -89,6 +90,7 @@ jobs:
           assert apk.is_file() and apk.stat().st_size > 100_000, "APK missing or unexpectedly small"
           with ZipFile(apk) as archive:
               assert archive.testzip() is None, "APK ZIP integrity check failed"
+              assert archive.read("assets/audio/manifest.json") == Path("../audio/manifest.json").read_bytes(), "APK audio attribution manifest mismatch"
               bundled = archive.read("assets/index.html")
               assert bundled == source, "APK does not contain the current index.html"
               for name in ("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"):
