@@ -96,6 +96,6 @@
 ## מדיניות שמירה וגיבוי
 - Windows משתמש בפרופיל WebView2 בתיקייה קבועה תחת %LOCALAPPDATA%/StepUpArabic/WebView2; מקור האפליקציה המקומי משתמש בפורט קבוע 41739 כדי ש-origin של localStorage לא ישתנה בין הפעלות.
 - Android כותב את מצב הלימוד גם לקובץ פרטי stepuparabic-progress.json דרך AtomicFile, לצד localStorage.
-- ייצוא הגיבוי יוצר StepUp-Arabic-backup.json. באנדרואיד הקובץ נשמר בתיקיית Downloads/StepUp Arabic.
+- ייצוא הגיבוי יוצר קובץ JSON מתוארך. ב-Windows הוא נשמר בתיקיית Downloads/StepUp Arabic דרך גשר Native; באנדרואיד הוא נשמר בתיקייה המקבילה דרך MediaStore.
 - שחזור מקבל גם גיבויים ישנים, מנרמל שדות חסרים ומציג אישור לפני החלפת ההתקדמות הנוכחית.
 - בדיקות persistence נפרדות בודקות שמירה, טעינה מחדש, fallback לשמירה המקומית של Android והתאוששות מנתוני localStorage פגומים.
