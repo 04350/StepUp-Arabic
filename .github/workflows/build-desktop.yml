@@ -48,6 +48,30 @@ jobs:
           python -m pip install -r requirements-audio.txt
           python scripts/fetch_audio.py
 
+      - name: Generate offline MSA word and alphabet audio
+        shell: pwsh
+        run: |
+          npm install --no-save --no-package-lock nabra-tts@0.1.0 onnxruntime-web@1.31.1
+          if ($LASTEXITCODE -ne 0) { throw "Could not install the Nabra audio generator" }
+          node scripts/generate_nabra_audio.mjs
+          if ($LASTEXITCODE -ne 0) { throw "MSA and alphabet audio generation failed" }
+
+      - name: Install CPU-only Sofelia Palestinian speech generator
+        shell: pwsh
+        run: |
+          python -m pip install --timeout 240 --retries 5 --index-url https://download.pytorch.org/whl/cpu torch
+          if ($LASTEXITCODE -ne 0) { throw "Could not install CPU PyTorch" }
+          python -m pip install --timeout 240 --retries 5 -r requirements-sofelia.txt
+          if ($LASTEXITCODE -ne 0) { throw "Could not install Sofelia dependencies" }
+
+      - name: Generate offline Palestinian Arabic word audio
+        run: python scripts/generate_sofelia_audio.py
+
+      - name: Bundle Arabic font and verify every audio file
+        run: |
+          python scripts/fetch_arabic_font.py
+          python tests/verify-generated-audio.py
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -63,6 +87,9 @@ jobs:
           Copy-Item -LiteralPath "audio/ATTRIBUTION.md" -Destination "desktop/audio/ATTRIBUTION.md" -Force
           Copy-Item -LiteralPath "audio/manifest.json" -Destination "desktop/audio/manifest.json" -Force
           Get-ChildItem -Path "audio" -Filter "*.wav" -File | ForEach-Object { Copy-Item $_.FullName -Destination "desktop/audio" -Force }
+          New-Item -ItemType Directory -Force -Path "desktop/audio/generated", "desktop/audio/fonts" | Out-Null
+          Copy-Item -Path "audio/generated/*" -Destination "desktop/audio/generated" -Recurse -Force
+          Copy-Item -Path "audio/fonts/*" -Destination "desktop/audio/fonts" -Force
           foreach ($clip in @("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav")) {
             $clipPath = Join-Path "desktop/audio" $clip
             if (!(Test-Path $clipPath)) { throw "Required human audio clip is missing: $clip" }
