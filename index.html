@@ -112,7 +112,7 @@ function normalizeState(x){
     studyDates:Array.isArray(x.studyDates)?x.studyDates:[],
     correct:Number.isFinite(Number(x.correct))?Number(x.correct):0,
     answered:Number.isFinite(Number(x.answered))?Number(x.answered):0,
-    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{})}
+    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{}),activeTrack:x.preferences?.activeTrack==="spoken"?"spoken":"formal"}
   };
 }
 function loadState(){
