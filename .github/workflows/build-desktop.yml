@@ -11,6 +11,7 @@ on:
       - "scripts/**"
       - "audio/**"
       - "requirements-audio.txt"
+      - "requirements-sofelia.txt"
   workflow_dispatch:
 
 concurrency:
