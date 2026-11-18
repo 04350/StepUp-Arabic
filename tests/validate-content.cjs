@@ -14,6 +14,9 @@ assert(html.includes('activeTrack="formal"'), "A brand-new learner should begin 
 assert(html.includes('data-retry="'), "Mistake review must link back to the original lesson");
 curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
 curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
+curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي ذَاتِ يَوْمٍ","יום אחד","fī dhāti yawmin","משפט קצר להאזנה","msa-one-day.wav"]);
+curriculum.formal.find(x => x.id === "ms-07").words.push(["عَلَى كَوْكَبٍ بَعِيدٍ","על כוכב רחוק","ʿalā kawkabin baʿīdin","משפט קצר להאזנה","msa-on-distant-planet.wav"]);
+curriculum.formal.find(x => x.id === "ms-12").words.push(["طَعَامُهُمْ وَاحِدٌ","האוכל שלהם זהה","ṭaʿāmuhum wāḥidun","משפט קצר להאזנה","msa-their-food-is-the-same.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
 const ids = new Set();
 let vocabCount = 0;
@@ -29,7 +32,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 345, "Expected at least 345 learning entries including two audio phrases; found " + vocabCount);
+assert(vocabCount >= 348, "Expected at least 345 learning entries including two audio phrases; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
