@@ -111,6 +111,7 @@ class MainActivity : Activity() {
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
                     installOfflineDownloadBridge(view)
+                    Log.i(TAG, "PAGE_FINISHED:" + url + "; smoke=" + smokeTestMode)
                     if (smokeTestMode && url.contains("stepUpSmokeTest=1")) {
                         view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return r.restored?\'PERSISTENCE_RESTORED\':(r.saved?\'PERSISTENCE_SAVED\':\'PERSISTENCE_FAILED\');})()") { result ->
                             Log.i(TAG, "SAVE_SMOKE:$result")
@@ -169,7 +170,11 @@ class MainActivity : Activity() {
                     AtomicFile(File(filesDir, "stepuparabic-progress.json"))
                         .openRead()
                         .bufferedReader(Charsets.UTF_8)
-                        .use { it.readText() }
+                        .use {
+                            val saved = it.readText()
+                            Log.i(TAG, "LOAD_PROGRESS_SUCCESS:" + saved.length)
+                            saved
+                        }
                 } catch (_: FileNotFoundException) {
                     ""
                 } catch (error: Exception) {
@@ -182,6 +187,7 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun saveProgress(json: String): Boolean {
             val bytes = json.toByteArray(Charsets.UTF_8)
+            Log.i(TAG, "SAVE_PROGRESS_CALLED:" + bytes.size)
             if (bytes.isEmpty() || bytes.size > 2_000_000) {
                 Log.w(TAG, "Progress save rejected: empty or too large")
                 return false
@@ -195,6 +201,7 @@ class MainActivity : Activity() {
                     output.write(bytes)
                     output.fd.sync()
                     atomic.finishWrite(output)
+                    Log.i(TAG, "SAVE_PROGRESS_SUCCESS:" + File(filesDir, "stepuparabic-progress.json").absolutePath)
                     true
                 } catch (error: Exception) {
                     output?.let { atomic.failWrite(it) }
