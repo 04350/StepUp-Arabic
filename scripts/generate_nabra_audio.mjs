@@ -40,7 +40,7 @@ const require = createRequire(import.meta.url);
 const ortDist = path.dirname(require.resolve("onnxruntime-web")) + path.sep;
 const modelBase = "https://huggingface.co/oddadmix/Nabra-7M-Distill-ONNX/resolve/main";
 
-console.log("Loading the offline MSA Arabic voice model...", flushOutput());
+console.log("Loading the offline MSA Arabic voice model...");
 const tts = await NabraTTS.load({
   worker: false,
   dtype: "fp16",
@@ -83,6 +83,7 @@ try {
     generator: "Nabra-7M-Distill",
     model: "oddadmix/Nabra-7M-Distill-ONNX",
     model_license: "Apache-2.0",
+    language: "Modern Standard Arabic",
     sample_rate: 24000,
     files: generated,
   };
@@ -92,6 +93,3 @@ try {
   await tts.dispose();
 }
 
-function flushOutput() {
-  return true;
-}
