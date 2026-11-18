@@ -5,8 +5,8 @@ function assert(ok, message) { if (!ok) throw new Error(message); }
 const match = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=/);
 assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
-assert(curriculum.spoken.length >= 8, "Expected at least 8 spoken lessons");
-assert(curriculum.formal.length >= 8, "Expected at least 8 formal lessons");
+assert(curriculum.spoken.length === 20, "Expected exactly 20 spoken lessons");
+assert(curriculum.formal.length === 20, "Expected exactly 20 formal lessons");
 const all = [...curriculum.spoken, ...curriculum.formal];
 const ids = new Set();
 let vocabCount = 0;
@@ -22,7 +22,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 100, "Expected at least 100 vocabulary items; found " + vocabCount);
+assert(vocabCount >= 250, "Expected at least 250 vocabulary items; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
@@ -37,4 +37,7 @@ assert(!/<link[^>]+href=["']https?:/.test(html), "External runtime stylesheet is
 const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m => !/\bsrc\s*=/.test(m[1]));
 assert(scripts.length, "No inline application script found");
 scripts.forEach((m, i) => new vm.Script(m[2].replace(/const CURRICULUM = \{[\s\S]*?\};/, "const CURRICULUM = {};"), { filename: "inline-" + (i + 1) + ".js" }));
-console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
+const exampleCount = all.filter(x => Array.isArray(x.examples) && x.examples.length).length;
+assert(exampleCount >= 20, "Expected example sentences in at least 20 lessons");
+assert(html.includes("examplesMarkup"), "Example sentence display is missing");
+console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
