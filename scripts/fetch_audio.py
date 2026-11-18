@@ -10,6 +10,9 @@ LICENSE = "CC BY 4.0"
 TARGETS = {
     "في الصباح": "msa-in-morning.wav",
     "في مدينة صغيرة": "msa-city-small.wav",
+    "في ذات يوم": "msa-one-day.wav",
+    "على كوكب بعيد": "msa-on-distant-planet.wav",
+    "طعامهم واحد": "msa-their-food-is-the-same.wav",
 }
 
 def main() -> int:
