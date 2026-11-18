@@ -5,7 +5,7 @@ Add a sound file only after documenting the source, exact licence, credit and pe
 Candidates:
 - Nahw Arabic Tashkeel Speech Dataset (CC BY 4.0): human-recorded MSA sentence clips; select suitable clips unchanged for listening exercises and include attribution.
 - Nabra-7M-Distill (Apache 2.0): optional locally generated MSA speech; synthetic, not an original speaker recording.
-- No Palestinian dialect recordings are approved for bundling yet. Do not edit or redistribute the Casablanca CC BY-NC-ND corpus as lesson clips.
+- No Palestinian human-recorded corpus has been approved for bundling as original recordings. The current course instead uses the Apache-2.0 Sofelia TTS model to synthesize clearly-labelled Palestinian Arabic word audio at build time; these are generated voices, not human-recorded clips. Do not edit or redistribute the Casablanca CC BY-NC-ND corpus as lesson clips.
 
 
 Additional source evaluated:
@@ -25,7 +25,7 @@ Additional source evaluated:
 מקור השוואתי: Bayanat Labs פרסמו סקירה מעודכנת של מאגרי דיבור בערבית ורישיונותיהם בספטמבר 2026, עם עדכון בנובמבר 2026. הסקירה מדגישה שרוב המאגר הפומבי הוא MSA/שידורי/קריאה ושחומר דיבור דיאלקטי פתוח ומותר להפצה הוא מצומצם. אין בכך אישור רישוי למאגר Lahgtna:
 https://www.bayanatlabs.com/insights/arabic-speech-datasets
 
-**החלטה:** בגרסה הנוכחית נכללים חמישה קטעי Nahw מאושרים ברישיון CC BY 4.0, והם מסומנים במפורש כערבית כללית/ספרותית. במסלול הפלסטיני לא מוצגת הקלטה שאינה פלסטינית כאילו היא פלסטינית. נרחיב אותו עם שמע רק לאחר אימות רישוי ותוכן.
+**החלטה מעודכנת:** חמשת קטעי Nahw ברישיון CC BY 4.0 נשארים הקלטות אנושיות ומסומנים כערבית כללית/ספרותית. לכל מילות המסלול הפלסטיני נוצר דיבור סינתטי ייעודי באמצעות Sofelia TTS 82M ברישיון Apache-2.0; אין מציגים את קול ה־MSA כאילו הוא פלסטיני. לכל מילים ואותיות המסלול הספרותי נוצר דיבור סינתטי באמצעות Nabra-7M-Distill, גם הוא ברישיון Apache-2.0.
 
 
 ## Five bundled neutral MSA recordings
@@ -38,3 +38,8 @@ The current package includes five short, unmodified clips from the same CC BY 4.
 - طعامهم واحد — a short food-related sentence
 
 All five are MSA/general Arabic read speech and are displayed only in MSA units. They are not presented as Palestinian speech. Each clip is selected by exact unvowelled sentence text and copied without editing.
+
+
+## Bundled generated speech and font
+
+Every vocabulary item in both tracks and each of the 28 Arabic letter names receives an individual pre-generated WAV. The Windows EXE and Android APK package the audio locally, plus Noto Sans Arabic (SIL OFL 1.1). Runtime playback and Arabic glyph rendering require no Internet connection or installed Arabic Windows language pack. The generators run only in CI during packaging; their model weights and Python/Node runtimes are not shipped to end users.
