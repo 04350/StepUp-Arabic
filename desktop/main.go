@@ -81,7 +81,7 @@ func main() {
 	// A loopback-only server gives the embedded page a stable local origin,
 	// so its localStorage progress and settings persist between app launches.
 	// It binds only to 127.0.0.1 and never exposes the app to the network.
-	listener, err := net.Listen("tcp4", "127.0.0.1:0")
+	listener, err := net.Listen("tcp4", "127.0.0.1:41739")
 	if err != nil {
 		messageBox("StepUp Arabic", "לא ניתן להפעיל את סביבת התוכנה המקומית.\n\n"+err.Error())
 		return
@@ -133,7 +133,7 @@ func main() {
 		AutoFocus: true,
 		DataPath:  profileDir,
 		WindowOptions: webview2.WindowOptions{
-			Title:  "StepUp Arabic — לומדים אנגלית צעד צעד",
+			Title:  "StepUp Arabic — לומדים ערבית צעד צעד",
 			Width:  1280,
 			Height: 860,
 			Center: true,
@@ -144,7 +144,7 @@ func main() {
 		return
 	}
 	defer w.Destroy()
-	w.SetTitle("StepUp Arabic — לומדים אנגלית צעד צעד")
+	w.SetTitle("StepUp Arabic — לומדים ערבית צעד צעד")
 	w.SetSize(1280, 860, webview2.HintNone)
 	w.Navigate(fmt.Sprintf("http://127.0.0.1:%d/", listener.Addr().(*net.TCPAddr).Port))
 	w.Run()
