@@ -27,6 +27,11 @@ assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
 assert(html.includes("data-audio"), "Audio player handling missing");
+assert(html.includes("msa-in-morning.wav") && html.includes("msa-city-small.wav"), "Human listening sample references missing");
+assert(fs.existsSync("scripts/fetch_audio.py"), "Audio fetch script missing");
+const fetchScript = fs.readFileSync("scripts/fetch_audio.py", "utf8");
+assert(fetchScript.includes("CC BY 4.0") || fetchScript.includes("CC-BY-4.0"), "Audio source licence must be documented");
+
 assert(!/<script[^>]+src=/.test(html), "Runtime external scripts are not allowed");
 assert(!/<link[^>]+href=["']https?:/.test(html), "External runtime stylesheet is not allowed");
 const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m => !/\bsrc\s*=/.test(m[1]));
