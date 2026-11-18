@@ -48,6 +48,14 @@ func newAudioHandler(files fs.FS) http.Handler {
 			contentType = "audio/ogg"
 		case ".m4a":
 			contentType = "audio/mp4"
+		case ".ttf":
+			contentType = "font/ttf"
+		case ".otf":
+			contentType = "font/otf"
+		case ".woff":
+			contentType = "font/woff"
+		case ".woff2":
+			contentType = "font/woff2"
 		default:
 			contentType = mime.TypeByExtension(extension)
 		}
