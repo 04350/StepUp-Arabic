@@ -120,7 +120,8 @@ class MainActivity : Activity() {
                             Log.i(TAG, "SMOKE_PROBE:$probe")
                         }
                         view.evaluateJavascript("(function(){try{var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false,reason:'hook-missing'};return JSON.stringify(r);}catch(error){return JSON.stringify({saved:false,restored:false,error:String(error),stack:error&&error.stack||''});}})()") { result ->
-                            Log.i(TAG, "SAVE_SMOKE:$result")
+                            val smokeResult = result?.replace("\\\"", "\"") ?: "null"
+                            Log.i(TAG, "SAVE_SMOKE:$smokeResult")
                         }
                     }
                 }
