@@ -78,3 +78,24 @@
 - התוכן הוא קורס ראשון רחב, אך עדיין נדרש מעבר הגהה של מורה/דובר ילידי לפני הפצה לקהל רחב.
 - חמש ההקלטות הזמינות כעת הן MSA בלבד; אין עדיין הקלטות פלסטיניות מאושרות להפצה.
 - אין סנכרון ענן. מעבירים התקדמות בין מכשירים באמצעות קובץ גיבוי.
+
+
+## מדריך סוגי הערבית
+המדריך נמצא בתפריט האפליקציה ומסביר בקצרה:
+- ערבית קלאסית וערבית ספרותית מודרנית (MSA): קרובות אך אינן זהות.
+- ערבית מדוברת: מגוון ניבים אזוריים לשיחות יום־יום.
+- ערבית לבנטינית: משפחת ניבים הכוללת פלסטינית, ירדנית, לבנונית וסורית, עם שונות פנימית.
+- קבוצות נוספות: מצרית, מפרצית, עיראקית ומגרבית.
+- קיים גם דיבור רשמי/משכיל המשלב מאפיינים תקניים ומדוברים.
+
+מקורות עיון:
+- Mahdi Alosh, Cambridge University Press, “Varieties of Arabic”: https://www.cambridge.org/core/books/abs/using-arabic/varieties-of-arabic/8A5398C389C1303E51BE99E8D7293415
+- Marijn van Putten, Language Science Press, “Classical and Modern Standard Arabic”: https://langsci-press.org/catalog/view/235/1805/1831-1
+- Gunvor Mejdell, Cambridge University Press, “What Is Formal Spoken Arabic?”: https://www.cambridge.org/core/books/abs/cambridge-handbook-of-arabic-linguistics/what-is-formal-spoken-arabic/768830C9598AE20B7AB353295102BBEA
+
+## מדיניות שמירה וגיבוי
+- Windows משתמש בפרופיל WebView2 בתיקייה קבועה תחת %LOCALAPPDATA%/StepUpArabic/WebView2; מקור האפליקציה המקומי משתמש בפורט קבוע 41739 כדי ש-origin של localStorage לא ישתנה בין הפעלות.
+- Android כותב את מצב הלימוד גם לקובץ פרטי stepuparabic-progress.json דרך AtomicFile, לצד localStorage.
+- ייצוא הגיבוי יוצר StepUp-Arabic-backup.json. באנדרואיד הקובץ נשמר בתיקיית Downloads/StepUp Arabic.
+- שחזור מקבל גם גיבויים ישנים, מנרמל שדות חסרים ומציג אישור לפני החלפת ההתקדמות הנוכחית.
+- בדיקות persistence נפרדות בודקות שמירה, טעינה מחדש, fallback לשמירה המקומית של Android והתאוששות מנתוני localStorage פגומים.
