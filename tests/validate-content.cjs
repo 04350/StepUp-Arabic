@@ -85,4 +85,18 @@ for (const lesson of all) {
 }
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
 assert(html.includes("const listening=questionBank.filter(q=>q.audio)"), "Final exam must include the listening questions from completed lessons");
+assert(html.includes('id="view-guide"') && html.includes("ערבית ספרותית מודרנית (MSA)"), "Arabic varieties guide is missing");
+assert(html.includes("ערבית לבנטינית") && html.includes("ערבית מדוברת פלסטינית"), "Guide must explain Levantine and Palestinian Arabic");
+assert(html.includes("function normalizeState") && html.includes("function loadState") && html.includes("function save()"), "Robust persistence functions are missing");
+assert(html.includes("window.StepUpNative.loadProgress") && html.includes("window.StepUpNative.saveProgress"), "Android native persistence fallback is missing");
+assert(html.includes("setTimeout(()=>URL.revokeObjectURL(url),60000)"), "Backup download URL must remain available long enough for WebView export");
+const androidManifest = fs.readFileSync("android/app/src/main/AndroidManifest.xml", "utf8");
+assert(!androidManifest.includes("android.permission.INTERNET"), "Android must not request Internet permission");
+const androidMain = fs.readFileSync("android/app/src/main/java/com/stepuparabic/app/MainActivity.kt", "utf8");
+assert(androidMain.includes('AtomicFile(File(filesDir, "stepuparabic-progress.json"))'), "Android must keep an atomic private progress file");
+assert(androidMain.includes("fun loadProgress(): String") && androidMain.includes("fun saveProgress(json: String): Boolean"), "Android native progress bridge methods are missing");
+const desktopMain = fs.readFileSync("desktop/main.go", "utf8");
+assert(desktopMain.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows must use a stable loopback origin for persistent localStorage");
+assert(desktopMain.includes('filepath.Join(dataDir, "WebView2")'), "Windows WebView2 profile directory must remain stable");
+assert(desktopMain.includes("לומדים ערבית צעד צעד"), "Windows app title must identify the Arabic course");
 console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item plus 1 for each human audio clip", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
