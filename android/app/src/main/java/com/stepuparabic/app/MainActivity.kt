@@ -116,7 +116,7 @@ class MainActivity : Activity() {
                         view.evaluateJavascript("typeof window.StepUpNative + \':\' + (window.StepUpNative ? typeof window.StepUpNative.saveProgress : \'no-object\')") { bridge ->
                             Log.i(TAG, "BRIDGE_API:$bridge")
                         }
-                        view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return r.restored?\'PERSISTENCE_RESTORED\':(r.saved?\'PERSISTENCE_SAVED\':\'PERSISTENCE_FAILED\');})()") { result ->
+                        view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return JSON.stringify(r);})()") { result ->
                             Log.i(TAG, "SAVE_SMOKE:$result")
                         }
                     }
