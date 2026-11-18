@@ -13,7 +13,7 @@ const key = html.match(/const KEY="([^"]+)"/)?.[1];
 const emptyText = html.match(/const EMPTY=(\{[^\n]+\});/)?.[1];
 assert(key && emptyText, "Storage key or empty state is missing");
 const empty = vm.runInNewContext("(" + emptyText + ")");
-const functions = ["normalizeState", "loadState", "save"].map(extractFunction).join("\n");
+const functions = ["normalizeState", "loadState", "save", "createBackupPayload", "restoreBackupPayload"].map(extractFunction).join("\n");
 
 function makeContext({ localStorage, nativeStore }) {
   const window = {
@@ -65,6 +65,17 @@ const reloaded = JSON.parse(JSON.stringify(reloadedContext.readState()));
 assert.deepEqual(reloaded.completed, ["ms-a1"], "Completed lessons should survive restart");
 assert.equal(reloaded.preferences.activeTrack, "spoken", "Selected learning track should survive restart");
 assert.equal(reloaded.scores["ms-a1"], 90, "Lesson score should survive restart");
+const exported = browserContext.createBackupPayload();
+assert.equal(exported.app, "StepUp Arabic", "Backup must identify its application");
+assert.equal(exported.schema, 2, "Backup must have a supported schema version");
+assert.ok(exported.exportedAt, "Backup must include an export timestamp");
+assert.deepEqual(JSON.parse(JSON.stringify(exported.state.completed)), ["ms-a1"]);
+const restoredPayload = browserContext.restoreBackupPayload(JSON.parse(JSON.stringify(exported)));
+assert.deepEqual(JSON.parse(JSON.stringify(restoredPayload.completed)), ["ms-a1"], "Versioned backup should restore completed lessons");
+const legacyPayload = browserContext.restoreBackupPayload({ completed: ["ms-a1"], scores: { "ms-a1": 90 }, mistakes: {}, preferences: { activeTrack: "spoken" } });
+assert.deepEqual(JSON.parse(JSON.stringify(legacyPayload.completed)), ["ms-a1"], "Legacy unwrapped backup should restore");
+assert.throws(() => browserContext.restoreBackupPayload({ app: "Different App", state: {} }), /Wrong application/);
+assert.throws(() => browserContext.restoreBackupPayload(null), /Invalid backup/);
 
 // If WebView localStorage is unavailable, Android's private progress file is the fallback.
 const brokenStorage = {
