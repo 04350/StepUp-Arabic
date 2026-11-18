@@ -42,7 +42,7 @@ assert(exampleCount === 40, "Every lesson must contain at least one example sent
 const teachingCount = all.filter(x => typeof x.teaching === "string" && x.teaching.trim()).length;
 assert(teachingCount === 40, "Every lesson must contain a teaching explanation");
 const bankStart = html.indexOf("function makeQuestionBank(l){");
-const bankEnd = html.indexOf("\\nfunction teachingMarkup(l)", bankStart);
+const bankEnd = html.indexOf("\nfunction teachingMarkup(l)", bankStart);
 assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
 const bankSource = html.slice(bankStart, bankEnd);
 const bankContext = { shuffle: items => items.slice() };
