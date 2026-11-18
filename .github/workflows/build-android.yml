@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-persistence-final
+  group: ${{ github.workflow }}-${{ github.ref }}-persistence-final2
   cancel-in-progress: true
 
 permissions:
