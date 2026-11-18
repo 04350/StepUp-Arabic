@@ -50,8 +50,8 @@ assert(androidApp.includes("file:///android_asset/index.html"), "Android must lo
 assert(androidApp.includes("domStorageEnabled = true"), "Android local progress storage must be enabled");
 const desktopApp = fs.readFileSync("desktop/main.go", "utf8");
 assert(desktopApp.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows local server must bind only to loopback");
-assert(desktopApp.includes("//go:embed audio/*"), "Windows audio must be embedded in the executable");
 const desktopAudio = fs.readFileSync("desktop/audio_server.go", "utf8");
+assert(desktopAudio.includes("//go:embed audio/*"), "Windows audio must be embedded in the executable");
 assert(desktopAudio.includes('contentType = "audio/wav"'), "Windows WAV responses must use an explicit playable audio MIME type");
 assert(desktopAudio.includes('w.Header().Set("Accept-Ranges", "bytes")'), "Windows audio route must advertise byte-range support");
 assert(desktopAudio.includes("http.ServeContent"), "Windows audio route must support browser media range requests");
