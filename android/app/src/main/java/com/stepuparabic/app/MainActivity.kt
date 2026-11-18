@@ -116,7 +116,10 @@ class MainActivity : Activity() {
                         view.evaluateJavascript("typeof window.StepUpNative + \':\' + (window.StepUpNative ? typeof window.StepUpNative.saveProgress : \'no-object\')") { bridge ->
                             Log.i(TAG, "BRIDGE_API:$bridge")
                         }
-                        view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return JSON.stringify(r);})()") { result ->
+                        view.evaluateJavascript("(function(){return JSON.stringify({hook:typeof window.__stepUpSmokeTest,ready:document.readyState,state:typeof state,url:location.href,bridge:typeof window.StepUpNative});})()") { probe ->
+                            Log.i(TAG, "SMOKE_PROBE:$probe")
+                        }
+                        view.evaluateJavascript("(function(){try{var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false,reason:'hook-missing'};return JSON.stringify(r);}catch(error){return JSON.stringify({saved:false,restored:false,error:String(error),stack:error&&error.stack||''});}})()") { result ->
                             Log.i(TAG, "SAVE_SMOKE:$result")
                         }
                     }
@@ -333,7 +336,7 @@ class MainActivity : Activity() {
         }
 
         override fun onConsoleMessage(message: android.webkit.ConsoleMessage): Boolean {
-            Log.d(TAG, "JS: ${message.message()} -- ${message.sourceId()}:${message.lineNumber()}")
+            Log.i(TAG, "JS: ${message.message()} -- ${message.sourceId()}:${message.lineNumber()}")
             return true
         }
     }
