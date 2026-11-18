@@ -135,10 +135,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.1.0
-          name: StepUp English Android v0.1.0
+          name: StepUp Arabic Android v0.1.0
           body: |
-            StepUp English Android app.
-            Offline lessons and embedded pronunciation audio.
+            StepUp Arabic Android app.
+            Offline Hebrew UI with 49 learning units: 20 Palestinian spoken Arabic and 29 MSA.
+            Beginner alphabet, connected letter forms, vowels, reading, lesson quizzes and two bundled human MSA listening clips.
             Signed APK for manual installation. Android 6.0 (API 23) or newer.
           files: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
           overwrite_files: true
