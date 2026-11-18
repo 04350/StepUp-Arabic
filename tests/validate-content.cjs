@@ -51,6 +51,14 @@ assert(androidApp.includes("domStorageEnabled = true"), "Android local progress 
 const desktopApp = fs.readFileSync("desktop/main.go", "utf8");
 assert(desktopApp.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows local server must bind only to loopback");
 assert(desktopApp.includes("//go:embed audio/*"), "Windows audio must be embedded in the executable");
+const desktopAudio = fs.readFileSync("desktop/audio_server.go", "utf8");
+assert(desktopAudio.includes('contentType = "audio/wav"'), "Windows WAV responses must use an explicit playable audio MIME type");
+assert(desktopAudio.includes('w.Header().Set("Accept-Ranges", "bytes")'), "Windows audio route must advertise byte-range support");
+assert(desktopAudio.includes("http.ServeContent"), "Windows audio route must support browser media range requests");
+const desktopAudioTests = fs.readFileSync("desktop/audio_server_test.go", "utf8");
+assert(desktopAudioTests.includes("TestEmbeddedAudioServesPlayableWAV") && desktopAudioTests.includes("TestEmbeddedAudioSupportsByteRanges"), "Windows audio playback regression tests are missing");
+const desktopWorkflow = fs.readFileSync(".github/workflows/build-desktop.yml", "utf8");
+assert(desktopWorkflow.includes("go test ./..."), "Windows build must run embedded audio playback regression tests");
 
 const fetchScript = fs.readFileSync("scripts/fetch_audio.py", "utf8");
 assert(fetchScript.includes("CC BY 4.0") || fetchScript.includes("CC-BY-4.0"), "Audio source licence must be documented");
