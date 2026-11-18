@@ -127,10 +127,21 @@ jobs:
           script: |
             adb logcat -c
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -n com.stepuparabic.app/.MainActivity
-            sleep 8
+            adb shell am start -n com.stepuparabic.app/.MainActivity --ez stepup_smoke true
+            sleep 5
             adb shell pidof com.stepuparabic.app
             adb shell dumpsys activity activities | grep -q "com.stepuparabic.app/.MainActivity"
+            adb shell run-as com.stepuparabic.app test -s files/stepuparabic-progress.json
+            adb shell run-as com.stepuparabic.app cat files/stepuparabic-progress.json > /tmp/stepup-progress-first.json
+            grep -q '"ms-a1"' /tmp/stepup-progress-first.json
+            grep -q '"activeTrack":"spoken"' /tmp/stepup-progress-first.json
+            adb shell am force-stop com.stepuparabic.app
+            adb shell am start -n com.stepuparabic.app/.MainActivity --ez stepup_smoke true
+            sleep 5
+            adb logcat -d -s StepUpArabic:I | grep -q 'SAVE_SMOKE.*PERSISTENCE_RESTORED'
+            adb shell run-as com.stepuparabic.app cat files/stepuparabic-progress.json > /tmp/stepup-progress-after-restart.json
+            grep -q '"ms-a1"' /tmp/stepup-progress-after-restart.json
+            grep -q '"activeTrack":"spoken"' /tmp/stepup-progress-after-restart.json
             ! adb logcat -d -s AndroidRuntime:E | grep -q "FATAL EXCEPTION"
 
       - name: Prepare a clearly named APK
