@@ -113,7 +113,7 @@ function normalizeState(x){
     finalExams:Array.isArray(x.finalExams)?x.finalExams.filter(e=>e&&typeof e==="object"&&Number.isFinite(Number(e.score))):[],
     correct:Number.isFinite(Number(x.correct))?Number(x.correct):0,
     answered:Number.isFinite(Number(x.answered))?Number(x.answered):0,
-    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{}),activeTrack:x.preferences?.activeTrack==="spoken"?"spoken":"formal"}
+    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{}),activeTrack:x.preferences&&x.preferences.activeTrack==="spoken"?"spoken":"formal"}
   };
 }
 function loadState(){
