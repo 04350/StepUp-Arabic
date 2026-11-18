@@ -11,6 +11,9 @@ Dataset description: native Arabic speakers, recordings reviewed by human annota
 Only these exact neutral sentence clips are selected for the first build:
 - في الصباح — msa-in-morning.wav
 - في مدينة صغيرة — msa-city-small.wav
+- في ذات يوم — msa-one-day.wav
+- على كوكب بعيد — msa-on-distant-planet.wav
+- طعامهم واحد — msa-their-food-is-the-same.wav
 
 Attribution is provided as required by CC BY 4.0. No endorsement by Nahw.ai is implied. The source language is general Arabic/MSA-style read speech; it is not labelled as Palestinian dialect, and the app must not present it as such.
 
