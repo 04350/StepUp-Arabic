@@ -106,3 +106,32 @@ func TestEmbeddedArabicFontIsBundledAndServed(t *testing.T) {
 		t.Fatal("served font differs from embedded font")
 	}
 }
+
+func TestGeneratedPalestinianMSAAndLetterAudioAreEmbedded(t *testing.T) {
+	for _, relative := range []string{
+		"audio/generated/sp-01-01.wav",
+		"audio/generated/ms-a1-01.wav",
+		"audio/generated/letter-01.wav",
+	} {
+		data, err := fs.ReadFile(audioFiles, relative)
+		if err != nil {
+			t.Fatalf("generated audio asset %q was not embedded: %v", relative, err)
+		}
+		if len(data) < 1000 || !bytes.Equal(data[:4], []byte("RIFF")) {
+			t.Fatalf("generated audio asset %q is not a valid WAV", relative)
+		}
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodGet, "/"+relative, nil)
+		newAudioHandler(audioFiles).ServeHTTP(response, request)
+		if response.Code != http.StatusOK {
+			t.Fatalf("GET %q status = %d, want %d", relative, response.Code, http.StatusOK)
+		}
+		if got := response.Header().Get("Content-Type"); !strings.HasPrefix(got, "audio/wav") {
+			t.Fatalf("Content-Type for %q = %q, want audio/wav", relative, got)
+		}
+		if !bytes.Equal(response.Body.Bytes(), data) {
+			t.Fatalf("served generated WAV differs from embedded file: %s", relative)
+		}
+	}
+}
