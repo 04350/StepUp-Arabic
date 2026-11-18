@@ -10,6 +10,8 @@ assert(curriculum.formal.length === 29, "Expected exactly 29 formal lessons");
 assert(curriculum.formal.slice(0,4).every(x => x.kind === "alphabet"), "The MSA track must begin with four alphabet units");
 assert(curriculum.formal.filter(x => x.kind === "sound").length >= 3, "Short vowels, sukun/shadda and long vowels must be taught in sound units");
 assert(curriculum.formal.some(x => x.id === "ms-a9" && x.kind === "reading"), "Beginner reading lesson is missing");
+assert(html.includes('activeTrack="formal"'), "A brand-new learner should begin in the alphabet/reading track");
+assert(html.includes('data-retry="'), "Mistake review must link back to the original lesson");
 curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
 curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
