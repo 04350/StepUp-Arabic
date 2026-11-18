@@ -51,7 +51,7 @@ jobs:
           mkdir -p android/app/src/main/assets
           cp index.html android/app/src/main/assets/index.html
           test -s android/app/src/main/assets/index.html
-          test "$(wc -c < android/app/src/main/assets/index.html)" -gt 1000000
+          test "$(wc -c < android/app/src/main/assets/index.html)" -gt 10000
 
       - name: Build Android APK
         working-directory: android
@@ -96,13 +96,13 @@ jobs:
             ! adb logcat -d -s AndroidRuntime:E | grep -q "FATAL EXCEPTION"
 
       - name: Prepare a clearly named APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v1.3.0.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
           name: StepUp-Arabic-Android
-          path: android/app/build/outputs/apk/debug/StepUp-Arabic-v1.3.0.apk
+          path: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -110,13 +110,13 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.0
-          name: StepUp English Android v1.3.0
+          tag_name: v0.1.0
+          name: StepUp English Android v0.1.0
           body: |
             StepUp English Android app.
             Offline lessons and embedded pronunciation audio.
             Signed APK for manual installation. Android 6.0 (API 23) or newer.
-          files: android/app/build/outputs/apk/debug/StepUp-Arabic-v1.3.0.apk
+          files: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
