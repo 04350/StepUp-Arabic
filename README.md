@@ -42,3 +42,11 @@ Common Voice Arabic 27 הוא CC0, אבל דף המאגר אוסר במפורש 
 - Android: GitHub Actions → Build StepUp Arabic Android APK.
 
 היישומים יארזו את התוכן והמדיה בתוך קובצי ההתקנה. לא תהיה תלות בשרת בזמן הלימוד.
+
+
+## Human listening samples
+The build workflow attempts to fetch two unmodified, neutral MSA clips from Nahw.ai's CC BY 4.0 dataset:
+- في الصباح
+- في مدينة صغيرة
+
+The clips are packaged in the Windows executable and Android APK when the dataset fetch succeeds. The app remains usable without them; unavailable audio controls explain that the clip is not included. These clips are MSA/general Arabic speech, not Palestinian-dialect recordings. Attribution and the source manifest are included in audio/.
