@@ -8,6 +8,9 @@ on:
       - ".github/workflows/build-desktop.yml"
       - "index.html"
       - "tests/**"
+      - "scripts/**"
+      - "audio/**"
+      - "requirements-audio.txt"
   workflow_dispatch:
 
 permissions:
@@ -27,6 +30,17 @@ jobs:
 
       - name: Validate lessons, vocabulary and JavaScript
         run: node tests/validate-content.cjs
+
+      - name: Set up Python for licensed audio assets
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch selected licensed human audio clips
+        run: |
+          python -m pip install -r requirements-audio.txt
+          python scripts/fetch_audio.py
+        continue-on-error: true
 
       - name: Set up Go
         uses: actions/setup-go@v5
