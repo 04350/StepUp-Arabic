@@ -49,9 +49,13 @@ jobs:
           cache: true
           cache-dependency-path: desktop/go.mod
 
-      - name: Embed the current offline learning app
+      - name: Embed the current offline learning app and audio
         shell: pwsh
-        run: Copy-Item -LiteralPath "index.html" -Destination "desktop/app.html" -Force
+        run: |
+          Copy-Item -LiteralPath "index.html" -Destination "desktop/app.html" -Force
+          New-Item -ItemType Directory -Force -Path "desktop/audio" | Out-Null
+          Copy-Item -LiteralPath "audio/ATTRIBUTION.md" -Destination "desktop/audio/ATTRIBUTION.md" -Force
+          Get-ChildItem -Path "audio" -Filter "*.wav" -File | ForEach-Object { Copy-Item $_.FullName -Destination "desktop/audio" -Force }
 
       - name: Build native Windows app
         working-directory: desktop
