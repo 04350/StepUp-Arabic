@@ -44,7 +44,7 @@ assert(html.includes('l.words.map((w,i)=>wordCard(w,l,i)).join("")'), "Lesson vi
 assert(html.includes('"generated/"+l.id+"-"+String(i+1).padStart(2,"0")+".wav"'), "Every vocabulary item must use its own bundled speech file");
 assert(html.includes('data-audio="generated/letter-'), "Every Arabic letter must have a bundled spoken-name button");
 assert(!html.includes("ללא שמע"), "The UI must not show a no-audio label on course words");
-assert(html.includes('new URL("audio/"+encodeURIComponent(name),window.location.href)'), "Audio URLs must work from both Windows HTTP and Android file assets");
+assert(html.includes('name.split("/").map(encodeURIComponent).join("/")'), "Audio URLs must preserve subfolders in both Windows and Android assets");
 assert(html.includes('audio/fonts/NotoSansArabic.ttf'), "The Arabic font must be loaded from the bundled local font file");
 assert(fs.existsSync("scripts/generate_nabra_audio.mjs"), "MSA and letter audio generator missing");
 assert(fs.existsSync("scripts/generate_sofelia_audio.py"), "Palestinian Arabic audio generator missing");
