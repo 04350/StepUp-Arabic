@@ -19,8 +19,6 @@ import torch
 from kokoro import KModel
 from misaki import espeak
 
-from sofelia_frontend import text_to_phonemes
-
 ROOT = Path(__file__).resolve().parents[1]
 HTML = ROOT / "index.html"
 WORK = ROOT / ".build" / "sofelia"
