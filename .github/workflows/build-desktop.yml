@@ -57,6 +57,28 @@ jobs:
           path: .build/nabra-tts
           persist-credentials: false
 
+      - name: Fix Nabra worker path for Windows
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          p = Path(".build/nabra-tts/tsup.config.ts")
+          source = p.read_text(encoding="utf-8")
+          import_line = "import { defineConfig, type Options } from 'tsup';"
+          if "fileURLToPath" not in source:
+              if import_line not in source:
+                  raise SystemExit("Could not find Nabra tsup import anchor")
+              source = source.replace(import_line, import_line + "\nimport { fileURLToPath } from 'node:url';")
+          old = "path: new URL(args.path.slice('inline-worker:'.length) + '.ts', `file://${args.resolveDir}/`).pathname,"
+          new = "path: fileURLToPath(new URL(args.path.slice('inline-worker:'.length) + '.ts', `file://${args.resolveDir}/`)),"
+          if old in source:
+              source = source.replace(old, new)
+          elif new not in source:
+              raise SystemExit("Could not find Nabra inline worker URL path expression")
+          p.write_text(source, encoding="utf-8")
+          print("Patched Nabra inline worker URL to a native Windows filesystem path.")
+          '@ | python -
+
       - name: Build Nabra audio generator
         working-directory: .build/nabra-tts
         run: |
