@@ -3,13 +3,11 @@
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
-	"mime"
 	"strings"
 	"os"
 	"path/filepath"
@@ -21,14 +19,10 @@ import (
 	"github.com/jchv/go-webview2/webviewloader"
 )
 
-// The complete learning application, including its audio data, is embedded
-// directly into the Windows executable.
+// The complete learning application is embedded directly into the executable.
 //
 //go:embed app.html
 var appHTML []byte
-
-//go:embed audio/*
-var audioFiles embed.FS
 
 var (
 	user32        = syscall.NewLazyDLL("user32.dll")
@@ -89,29 +83,7 @@ func main() {
 		return
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/audio/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-		assetPath := strings.TrimPrefix(r.URL.Path, "/")
-		if strings.Contains(assetPath, "..") {
-			http.NotFound(w, r)
-			return
-		}
-		data, readErr := audioFiles.ReadFile(assetPath)
-		if readErr != nil {
-			http.NotFound(w, r)
-			return
-		}
-		contentType := mime.TypeByExtension(filepath.Ext(assetPath))
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
-		w.Header().Set("Content-Type", contentType)
-		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		_, _ = w.Write(data)
-	})
+	mux.Handle("/audio/", newAudioHandler(audioFiles))
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != "/index.html" {
 			http.NotFound(w, r)
