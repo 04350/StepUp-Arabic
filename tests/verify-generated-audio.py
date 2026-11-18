@@ -27,12 +27,12 @@ def load_json(pattern: str, label: str):
     return json.loads(match.group(1))
 
 
-def verify_wav(path: Path, label: str) -> None:
+def verify_wav(path: Path, label: str, sample_rate: int = 24000) -> None:
     require(path.is_file(), f"Missing offline audio: {label} ({path})")
     require(path.stat().st_size > 1000, f"Audio file is too small: {label}")
     with wave.open(str(path), "rb") as wav:
         require(wav.getnchannels() == 1, f"Expected mono audio: {label}")
-        require(wav.getframerate() == 24000, f"Expected 24 kHz audio: {label}")
+        require(wav.getframerate() == sample_rate, f"Expected {sample_rate} Hz audio: {label}")
         require(wav.getsampwidth() == 2, f"Expected 16-bit PCM audio: {label}")
         require(wav.getcomptype() == "NONE", f"Expected uncompressed PCM audio: {label}")
         require(wav.getnframes() >= 1200, f"Audio is too short: {label}")
@@ -82,7 +82,7 @@ for human_clip in (
     "msa-on-distant-planet.wav",
     "msa-their-food-is-the-same.wav",
 ):
-    verify_wav(AUDIO / human_clip, f"Human MSA clip {human_clip}")
+    verify_wav(AUDIO / human_clip, f"Human MSA clip {human_clip}", sample_rate=16000)
 
 font = FONTS / "NotoSansArabic.ttf"
 require(font.is_file() and font.stat().st_size > 100_000, "Bundled Arabic font is missing")
