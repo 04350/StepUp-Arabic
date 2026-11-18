@@ -83,7 +83,7 @@ jobs:
           $app = Start-Process -FilePath $appPath -PassThru
           Start-Sleep -Seconds 8
           $app.Refresh()
-          if ($app.HasExited) { throw "StepUp English closed during startup (exit code $($app.ExitCode))" }
+          if ($app.HasExited) { throw "StepUp Arabic closed during startup (exit code $($app.ExitCode))" }
           Stop-Process -Id $app.Id -Force
 
       - name: Upload Windows executable
@@ -93,3 +93,18 @@ jobs:
           path: desktop/dist/StepUp-Arabic.exe
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish Windows download on GitHub Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0
+          name: StepUp Arabic v0.1.0
+          body: |
+            StepUp Arabic Windows desktop app.
+            Offline Hebrew UI, 40 Arabic learning units and bundled human MSA listening samples.
+            Requires Microsoft Edge WebView2 Runtime.
+          files: desktop/dist/StepUp-Arabic.exe
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
