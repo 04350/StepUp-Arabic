@@ -116,16 +116,21 @@ function normalizeState(x){
   };
 }
 function loadState(){
-  let localRaw="";
+  let localState=null,nativeState=null,localRaw="";
   try{localRaw=localStorage.getItem(KEY)||"";}catch(e){console.warn("Browser storage unavailable",e);}
-  if(localRaw){try{return normalizeState(JSON.parse(localRaw));}catch(e){console.warn("Local save is invalid; checking native save",e);}}
+  if(localRaw){try{localState=normalizeState(JSON.parse(localRaw));}catch(e){console.warn("Local save is invalid; checking native save",e);}}
   try{
     if(window.StepUpNative&&typeof window.StepUpNative.loadProgress==="function"){
       const nativeRaw=window.StepUpNative.loadProgress();
-      if(nativeRaw)return normalizeState(JSON.parse(nativeRaw));
+      if(nativeRaw)nativeState=normalizeState(JSON.parse(nativeRaw));
     }
   }catch(e){console.warn("Native save could not be loaded",e);}
-  return normalizeState(EMPTY);
+  if(localState&&nativeState){
+    const localTime=Date.parse(localState.lastSavedAt||"")||0;
+    const nativeTime=Date.parse(nativeState.lastSavedAt||"")||0;
+    return nativeTime>localTime?nativeState:localState;
+  }
+  return localState||nativeState||normalizeState(EMPTY);
 }
 function save(){
   state.lastSavedAt=new Date().toISOString();
