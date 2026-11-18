@@ -31,15 +31,16 @@ main{min-width:0}.hero{padding:24px 26px;background:linear-gradient(120deg,#fff 
 .answer.correct{border-color:#68bd97;background:#effaf4}.answer.wrong{border-color:#e39b9b;background:#fff4f4}.feedback{min-height:28px;margin:12px 0;font-size:13px;font-weight:700}.hidden{display:none!important}
 .progress-track{height:8px;background:#e9eaf2;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:var(--brand);border-radius:99px;width:0;transition:width .2s}
 .result-score{font-size:44px;font-weight:800;color:var(--brand);line-height:1.2}.mistake-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.guide-card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff}.guide-card h3{font-size:16px;margin:0 0 7px}.guide-card p{margin:0;color:var(--muted);font-size:13px}.guide-label{display:inline-block;padding:3px 9px;border-radius:30px;background:var(--soft);color:var(--brand);font-size:11px;font-weight:700;margin-bottom:9px}.guide-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}.guide-table th,.guide-table td{padding:10px;text-align:right;vertical-align:top;border-bottom:1px solid var(--line)}.guide-table th{background:#f8f7ff;color:#555078}.save-status{font-size:11px;color:var(--muted);white-space:nowrap}
 .footer{margin:22px 0 8px;text-align:center;color:#a0a3b2;font-size:11px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow:auto;gap:3px}.nav-title,.side-note{display:none}.nav{white-space:nowrap;width:auto}.lesson-layout{grid-template-columns:1fr}}
-@media(max-width:620px){.app{padding:12px}.top{align-items:flex-start}.top-actions .pill{display:none}.hero{padding:19px}.hero h2{font-size:21px}.hero-mark{font-size:52px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.lesson-grid{grid-template-columns:1fr}.letter-grid{grid-template-columns:repeat(4,1fr)}.answers{grid-template-columns:1fr 1fr}.panel{padding:15px}.word-ar{font-size:25px}}
+@media(max-width:620px){.guide-grid{grid-template-columns:1fr}.guide-table{font-size:12px}.guide-table th,.guide-table td{padding:7px}.app{padding:12px}.top{align-items:flex-start}.top-actions .pill{display:none}.hero{padding:19px}.hero h2{font-size:21px}.hero-mark{font-size:52px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.lesson-grid{grid-template-columns:1fr}.letter-grid{grid-template-columns:repeat(4,1fr)}.answers{grid-template-columns:1fr 1fr}.panel{padding:15px}.word-ar{font-size:25px}}
 </style></head><body><div class="app">
 <header class="top"><div class="brand"><div class="logo">ع</div><div><h1>StepUp Arabic</h1><p>לומדים ערבית צעד צעד</p></div></div>
-<div class="top-actions"><span class="pill">● מצב לא מקוון</span><button class="secondary" id="backupBtn">גיבוי</button><button class="secondary" id="restoreBtn">שחזור</button><input id="restoreFile" type="file" accept="application/json" hidden></div></header>
+<div class="top-actions"><span class="pill">● מצב לא מקוון</span><span class="save-status" id="saveStatus">שמירה אוטומטית</span><button class="secondary" id="backupBtn">גיבוי</button><button class="secondary" id="restoreBtn">שחזור</button><input id="restoreFile" type="file" accept="application/json" hidden></div></header>
 <div class="layout"><aside class="sidebar"><div class="nav-title">תפריט לימוד</div>
 <button class="nav active" data-view="home"><span class="ico">⌂</span>ראשי</button><button class="nav" data-view="letters"><span class="ico">أ</span>האלפבית</button>
-<button class="nav" data-view="spoken"><span class="ico">◉</span>ערבית מדוברת</button><button class="nav" data-view="formal"><span class="ico">▤</span>ערבית ספרותית</button>
+<button class="nav" data-view="spoken"><span class="ico">◉</span>ערבית מדוברת</button><button class="nav" data-view="formal"><span class="ico">▤</span>ערבית ספרותית</button><button class="nav" data-view="guide"><span class="ico">?</span>מדריך סוגי הערבית</button>
 <button class="nav" data-view="mistakes"><span class="ico">↻</span>חזרה על טעויות</button><button class="nav" data-view="exam"><span class="ico">✓</span>מבחן מסכם</button>
 <button class="nav" data-view="progress"><span class="ico">▥</span>ההתקדמות שלי</button><div class="side-note">כל השיעורים, הנתונים והקלטות שיצורפו נשמרים מקומית. אין צורך בהרשמה.</div></aside>
 <main>
@@ -47,6 +48,31 @@ main{min-width:0}.hero{padding:24px 26px;background:linear-gradient(120deg,#fff 
 <div class="stats"><div class="stat"><span class="label">שיעורים שהושלמו</span><strong id="completedCount">0</strong><small id="totalLessons">מתוך 16 שיעורים</small></div><div class="stat"><span class="label">התקדמות בקורס</span><strong id="progressPercent">0%</strong><small>מתעדכן אוטומטית</small></div><div class="stat"><span class="label">ימי לימוד</span><strong id="studyDays">0</strong><small>נרשמים במכשיר זה</small></div></div>
 <div class="section-head"><h3>מסלולי הלימוד</h3><span>אפשר לעבור ביניהם בכל עת</span></div><div class="track-switch"><button class="track-btn" data-track="spoken">ערבית מדוברת פלסטינית</button><button class="track-btn selected" data-track="formal">ערבית ספרותית</button></div>
 <div class="section-head"><h3 id="lessonHeading">מתחילים לדבר</h3><span id="lessonSubhead">8 יחידות · מהבסיס</span></div><div class="lesson-grid" id="lessonGrid"></div></section>
+<section id="view-guide" class="hidden"><div class="panel">
+<h2>מדריך קצר: אילו סוגי ערבית קיימים?</h2>
+<p class="muted">כשאומרים "ערבית", לא מתכוונים תמיד לאותה צורת דיבור. יש ערבית תקנית המשמשת בכתיבה ובהקשרים רשמיים, ולצידה ניבים אזוריים שבהם אנשים משתמשים בשיחות היום־יום. הדוברים עוברים לעיתים בין הסגנונות בהתאם למצב.</p>
+<div class="guide-grid">
+<div class="guide-card"><span class="guide-label">שפה תקנית מודרנית</span><h3>ערבית ספרותית מודרנית (MSA)</h3><p>הצורה התקנית המשותפת ברובה למדינות ערב. משתמשים בה בחדשות, בספרים, בלימודים, במסמכים ובנאומים רשמיים. היא שימושית מאוד לקריאה ולהבנת תוכן רשמי, אך בדרך כלל אינה הניב שבו אנשים משוחחים בבית.</p></div>
+<div class="guide-card"><span class="guide-label">שפה ספרותית היסטורית</span><h3>ערבית קלאסית</h3><p>לשון ספרותית עתיקה יותר, הקשורה לטקסטים ולספרות מתקופות קודמות. היא קרובה לערבית התקנית המודרנית, אך אינה זהה לה; יש הבדלים באוצר המילים, בסגנון ובשימוש.</p></div>
+<div class="guide-card"><span class="guide-label">שפת היום־יום</span><h3>ערבית מדוברת / ניבים</h3><p>הצורות שאנשים רוכשים ומשתמשים בהן באופן טבעי בשיחות יום־יומיות. הן משתנות מאזור לאזור בהגייה, במילים ובדקדוק. אין ניב מדובּר יחיד שכל דוברי הערבית משתמשים בו.</p></div>
+<div class="guide-card"><span class="guide-label">קבוצת ניבים אזורית</span><h3>ערבית לבנטינית (מזרח־תיכונית)</h3><p>קבוצת ניבים המדוברים באזור הלבנט, ובכלל זה פלסטין, ירדן, לבנון וסוריה. הערבית הפלסטינית היא אחת הצורות בקבוצה הזאת. גם בתוך פלסטין קיימים הבדלים בין אזורים וקהילות.</p></div>
+</div>
+<h3>עוד קבוצות ניבים שתפגוש</h3>
+<table class="guide-table"><thead><tr><th>קבוצה</th><th>אזור לדוגמה</th><th>הערה</th></tr></thead><tbody>
+<tr><td>מצרית</td><td>מצרים</td><td>ניב מוכר מאוד דרך קולנוע, טלוויזיה ומוזיקה</td></tr>
+<tr><td>מפרצית</td><td>מדינות המפרץ</td><td>כוללת כמה צורות מקומיות, ולא ניב אחיד אחד</td></tr>
+<tr><td>עיראקית</td><td>עיראק</td><td>בעלת מאפייני הגייה ואוצר מילים משלה</td></tr>
+<tr><td>מגרבית / צפון־אפריקאית</td><td>מרוקו, אלג׳יריה, תוניסיה ואזורים סמוכים</td><td>מושפעת גם משפות האזור, ויש בה שונות פנימית רבה</td></tr>
+</tbody></table>
+<div class="info-box"><strong>ומהי ערבית מדוברת רשמית?</strong><p class="muted">בשיחה ציבורית או מקצועית אנשים עשויים לשלב מאפיינים של הערבית התקנית עם הניב המקומי. לכן הגבול בין "ספרותית" ל"מדוברת" אינו תמיד חד.</p></div>
+<div class="section-head"><h3>באיזה מסלול כדאי להתחיל?</h3><span>המלצה לפי מטרת הלימוד</span></div>
+<div class="guide-grid">
+<div class="guide-card"><h3>רוצה לדבר עם אנשים מהאזור?</h3><p>התחל בערבית מדוברת פלסטינית. היא מתאימה במיוחד לשיחות יום־יומיות עם דוברי פלסטינית ולבנטינית, תוך זכירה שיש הבדלים מקומיים.</p><button class="primary" style="margin-top:12px" id="guideToSpoken">מעבר למסלול המדוברת</button></div>
+<div class="guide-card"><h3>רוצה לקרוא ולהבין תוכן רשמי?</h3><p>התחל בערבית ספרותית מודרנית. היא מתאימה לקריאת כתבות, ספרים, חומר לימודי וטקסטים רשמיים.</p><button class="primary" style="margin-top:12px" id="guideToFormal">מעבר למסלול הספרותית</button></div>
+</div>
+<p class="muted" style="font-size:12px">המלצה ללומד שרוצה שליטה רחבה: ללמוד בהדרגה גם ערבית ספרותית וגם ניב מדובּר אחד. הן משלימות זו את זו, ולא מחליפות זו את זו.</p>
+<div class="info-box"><strong>מקורות עיון</strong><p class="muted">Cambridge University Press, "Varieties of Arabic" (Mahdi Alosh); Language Science Press, "Classical and Modern Standard Arabic" (Marijn van Putten). ההסבר כאן הוא מבוא כללי, לא מיפוי מלא של כל הניבים.</p></div>
+</div></section>
 <section id="view-letters" class="hidden"><div class="panel"><h2>האלפבית הערבי</h2><p class="muted">28 אותיות. בכל כרטיס מופיעות הצורות הנפוצות של האות כשהיא נכתבת בנפרד, בתחילת מילה, באמצעה ובסופה.</p><div class="letter-grid" id="letterGrid"></div><div class="info-box"><strong>חשוב:</strong> שש אותיות אינן מתחברות לאות שאחריהן: ا د ذ ر ز و. הן עדיין יכולות להתחבר לאות שלפניהן.</div></div></section>
 <section id="view-spoken" class="hidden"><div class="panel"><h2>ערבית מדוברת פלסטינית</h2><p class="muted">המסלול מלמד ביטויים בשימוש יום־יומי. מקרים שבהם הצורה משתנה לפי מין או הקשר יסומנו במפורש.</p><div id="spokenWords"></div></div></section>
 <section id="view-formal" class="hidden"><div class="panel"><h2>ערבית ספרותית תקנית</h2><p class="muted">המסלול עוסק בקריאה, כתיבה, אוצר מילים ומבנים תקניים.</p><div id="formalWords"></div></div></section>
@@ -74,11 +100,45 @@ const LETTERS=[
 ["ه","הַאא","ه","هـ","ـهـ","ـه"],["و","וַאו","و","و","ـو","ـو"],["ي","יַאא","ي","يـ","ـيـ","ـي"]];
 const KEY="stepupArabic.v0.2";
 const ALL_LESSONS=[...CURRICULUM.spoken.map(x=>({...x,track:"spoken"})),...CURRICULUM.formal.map(x=>({...x,track:"formal"}))];
-const EMPTY={completed:[],scores:{},mistakes:{},correct:0,answered:0,studyDates:[]};
-let state=loadState(),activeTrack="formal",activeLesson=null,quiz=null;
+const EMPTY={completed:[],scores:{},mistakes:{},correct:0,answered:0,studyDates:[],preferences:{activeTrack:"formal"},lastSavedAt:null};
+let state=loadState(),activeTrack=state.preferences.activeTrack||"formal",activeLesson=null,quiz=null;
 const $=id=>document.getElementById(id);
-function loadState(){try{const x=JSON.parse(localStorage.getItem(KEY)||"{}");return {...EMPTY,...x,scores:x.scores||{},mistakes:x.mistakes||{}};}catch(e){return {...EMPTY};}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));updateStats();}
+function normalizeState(x){
+  if(!x||typeof x!=="object"||Array.isArray(x))throw new Error("Invalid save data");
+  return {...EMPTY,...x,
+    completed:Array.isArray(x.completed)?x.completed:[],
+    scores:x.scores&&typeof x.scores==="object"?x.scores:{},
+    mistakes:x.mistakes&&typeof x.mistakes==="object"?x.mistakes:{},
+    studyDates:Array.isArray(x.studyDates)?x.studyDates:[],
+    correct:Number.isFinite(Number(x.correct))?Number(x.correct):0,
+    answered:Number.isFinite(Number(x.answered))?Number(x.answered):0,
+    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{})}
+  };
+}
+function loadState(){
+  let localRaw="";
+  try{localRaw=localStorage.getItem(KEY)||"";}catch(e){console.warn("Browser storage unavailable",e);}
+  if(localRaw){try{return normalizeState(JSON.parse(localRaw));}catch(e){console.warn("Local save is invalid; checking native save",e);}}
+  try{
+    if(window.StepUpNative&&typeof window.StepUpNative.loadProgress==="function"){
+      const nativeRaw=window.StepUpNative.loadProgress();
+      if(nativeRaw)return normalizeState(JSON.parse(nativeRaw));
+    }
+  }catch(e){console.warn("Native save could not be loaded",e);}
+  return normalizeState(EMPTY);
+}
+function save(){
+  state.lastSavedAt=new Date().toISOString();
+  const payload=JSON.stringify(state);
+  let localSaved=false,nativeSaved=false;
+  try{localStorage.setItem(KEY,payload);localSaved=localStorage.getItem(KEY)===payload;}catch(e){console.warn("Browser auto-save failed",e);}
+  try{if(window.StepUpNative&&typeof window.StepUpNative.saveProgress==="function")nativeSaved=window.StepUpNative.saveProgress(payload)===true;}catch(e){console.warn("Native auto-save failed",e);}
+  const ok=localSaved||nativeSaved;
+  const status=$("saveStatus");
+  if(status)status.textContent=ok?"נשמר אוטומטית":"שגיאה בשמירה — מומלץ לייצא גיבוי";
+  updateStats();
+  return ok;
+}
 function markStudy(){const day=new Date().toISOString().slice(0,10);if(!state.studyDates.includes(day))state.studyDates.push(day);save();}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 function trackName(t){return t==="spoken"?"ערבית מדוברת פלסטינית":"ערבית ספרותית תקנית";}
@@ -134,13 +194,15 @@ function renderStats(){updateStats();}
 function playAudio(name){const player=$("audioPlayer");player.src="audio/"+name;player.play().catch(()=>alert("קובץ השמע אינו זמין בחבילת ההתקנה הנוכחית."));}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-audio]");if(b)playAudio(b.dataset.audio);const retry=e.target.closest("[data-retry]");if(retry)openLesson(retry.dataset.retry);const f=e.target.closest("[data-forget]");if(f){delete state.mistakes[decodeURIComponent(f.dataset.forget)];save();renderMistakes();}});
 document.querySelectorAll(".nav").forEach(b=>b.addEventListener("click",()=>{showView(b.dataset.view);if(b.dataset.view==="mistakes")renderMistakes();if(b.dataset.view==="progress")renderStats();}));
-document.querySelectorAll(".track-btn").forEach(b=>b.addEventListener("click",()=>{activeTrack=b.dataset.track;document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x===b));renderLessons();}));
+$("guideToSpoken").addEventListener("click",()=>{activeTrack="spoken";state.preferences.activeTrack=activeTrack;save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();showView("home");});
+$("guideToFormal").addEventListener("click",()=>{activeTrack="formal";state.preferences.activeTrack=activeTrack;save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();showView("home");});
+document.querySelectorAll(".track-btn").forEach(b=>b.addEventListener("click",()=>{activeTrack=b.dataset.track;state.preferences.activeTrack=activeTrack;save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x===b));renderLessons();}));
 $("lessonGrid").addEventListener("click",e=>{const b=e.target.closest("[data-lesson]");if(b)openLesson(b.dataset.lesson);});
 $("continueBtn").addEventListener("click",()=>{const ordered=CURRICULUM[activeTrack],next=ordered.find(l=>!state.completed.includes(l.id))||ordered[0];openLesson(next.id);});
 $("backHome").addEventListener("click",()=>{showView("home");renderLessons();});
 $("startFinalExam").addEventListener("click",startFinalExam);
-$("backupBtn").addEventListener("click",()=>{const data={schema:1,exportedAt:new Date().toISOString(),state};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="StepUp-Arabic-backup.json";a.click();URL.revokeObjectURL(a.href);});
+$("backupBtn").addEventListener("click",()=>{save();const data={app:"StepUp Arabic",schema:2,exportedAt:new Date().toISOString(),state};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="StepUp-Arabic-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);});
 $("restoreBtn").addEventListener("click",()=>$("restoreFile").click());
-$("restoreFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text()),incoming=data.state||data;if(!Array.isArray(incoming.completed)||!incoming.scores||!incoming.mistakes)throw new Error("invalid");state={...EMPTY,...incoming};save();renderLessons();renderMistakes();alert("הגיבוי שוחזר בהצלחה.");}catch(err){alert("קובץ הגיבוי אינו תקין או שאינו תואם לגרסה זו.");}e.target.value="";});
-renderLessons();renderLetters();renderWordList("spokenWords","spoken");renderWordList("formalWords","formal");renderMistakes();updateStats();
+$("restoreFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(data.app&&data.app!=="StepUp Arabic")throw new Error("wrong app");const incoming=normalizeState(data.state||data);if(!confirm("שחזור הגיבוי יחליף את ההתקדמות השמורה במכשיר הזה. מומלץ לייצא גיבוי של המצב הנוכחי לפני ההחלפה. להמשיך?"))return;state=incoming;activeTrack=state.preferences.activeTrack||"formal";save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();renderMistakes();alert("הגיבוי שוחזר ונשמר בהצלחה.");}catch(err){alert("קובץ הגיבוי אינו תקין או שאינו תואם לתוכנה זו.");}finally{e.target.value="";}});
+renderLessons();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLetters();renderWordList("spokenWords","spoken");renderWordList("formalWords","formal");renderMistakes();updateStats();$("saveStatus").textContent=state.lastSavedAt?"שמירה מקומית נטענה":"שמירה אוטומטית פעילה";window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save();});
 </script></body></html>
