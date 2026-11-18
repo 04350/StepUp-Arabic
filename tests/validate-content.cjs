@@ -101,6 +101,7 @@ const desktopMain = fs.readFileSync("desktop/main.go", "utf8");
 assert(desktopMain.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows must use a stable loopback origin for persistent localStorage");
 assert(desktopMain.includes('filepath.Join(dataDir, "WebView2")'), "Windows WebView2 profile directory must remain stable");
 assert(desktopMain.includes("לומדים ערבית צעד צעד"), "Windows app title must identify the Arabic course");
+assert(html.includes("window.StepUpNativeSaveFile") && html.includes("StepUp-Arabic-backup.json"), "Backup button must call the Windows native file writer");
 assert(desktopMain.includes('w.Bind("StepUpNativeSaveFile"'), "Windows must expose a native backup file writer");
 assert(desktopMain.includes('filepath.Join(home, "Downloads", "StepUp Arabic")'), "Windows backups must be stored in the user Downloads folder");
 assert(desktopMain.includes("json.Valid([]byte(content))"), "Windows backup writer must validate JSON before writing");
