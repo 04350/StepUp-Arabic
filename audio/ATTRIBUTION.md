@@ -18,3 +18,6 @@ Only these exact neutral sentence clips are selected for the first build:
 Attribution is provided as required by CC BY 4.0. No endorsement by Nahw.ai is implied. The source language is general Arabic/MSA-style read speech; it is not labelled as Palestinian dialect, and the app must not present it as such.
 
 The fetch script selects rows by exact unvowelled sentence and copies the original WAV bytes without editing them.
+
+
+The build-generated manifest.json is also packaged in the Windows executable and Android APK. It records the exact dataset sentence, diacritized transcription, speaker ID, source URL, licence and credit for each included WAV file.
