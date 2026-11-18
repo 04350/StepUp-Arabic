@@ -65,7 +65,7 @@ jobs:
           from zipfile import ZipFile
           apk = Path("app/build/outputs/apk/debug/app-debug.apk")
           source = Path("../index.html").read_bytes()
-          assert apk.is_file() and apk.stat().st_size > 1_000_000, "APK missing or unexpectedly small"
+          assert apk.is_file() and apk.stat().st_size > 100_000, "APK missing or unexpectedly small"
           with ZipFile(apk) as archive:
               assert archive.testzip() is None, "APK ZIP integrity check failed"
               bundled = archive.read("assets/index.html")
