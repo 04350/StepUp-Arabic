@@ -81,6 +81,14 @@ androidContext.writeState(fallbackState);
 assert.equal(androidContext.save(), true, "Native-only save should succeed");
 assert.equal(JSON.parse(nativeFallback.value).answered, 12, "Native progress file should be updated");
 
+// When both stores contain valid data, load the newer Android atomic save.
+const stale = { ...empty, completed: [], lastSavedAt: "2025-01-01T00:00:00.000Z" };
+const fresh = { ...empty, completed: ["ms-a1"], preferences: { activeTrack: "spoken" }, lastSavedAt: "2026-11-18T13:00:00.000Z" };
+memory.set(key, JSON.stringify(stale));
+const newerNative = { value: JSON.stringify(fresh), writes: 0 };
+const newestContext = makeContext({ localStorage: normalStorage, nativeStore: newerNative });
+assert.deepEqual(JSON.parse(JSON.stringify(newestContext.readState())).completed, ["ms-a1"], "The most recent valid save should win");
+
 // Malformed local data must fall back to the native save rather than resetting progress.
 memory.set(key, "{broken-json");
 const corruptedContext = makeContext({ localStorage: normalStorage, nativeStore: native });
