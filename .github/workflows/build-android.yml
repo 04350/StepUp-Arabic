@@ -7,6 +7,9 @@ on:
       - "index.html"
       - "android/**"
       - "tests/**"
+      - "scripts/**"
+      - "audio/**"
+      - "requirements-audio.txt"
       - ".github/workflows/build-android.yml"
   pull_request:
     branches: [main]
@@ -35,6 +38,17 @@ jobs:
       - name: Validate lessons, vocabulary and JavaScript
         run: node tests/validate-content.cjs
 
+      - name: Set up Python for licensed audio assets
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch selected licensed human audio clips
+        run: |
+          python -m pip install -r requirements-audio.txt
+          python scripts/fetch_audio.py
+        continue-on-error: true
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -52,6 +66,9 @@ jobs:
           cp index.html android/app/src/main/assets/index.html
           test -s android/app/src/main/assets/index.html
           test "$(wc -c < android/app/src/main/assets/index.html)" -gt 10000
+          mkdir -p android/app/src/main/assets/audio
+          cp audio/ATTRIBUTION.md android/app/src/main/assets/audio/ATTRIBUTION.md
+          find audio -maxdepth 1 -type f -name "*.wav" -exec cp {} android/app/src/main/assets/audio/ \;
 
       - name: Build Android APK
         working-directory: android
@@ -70,6 +87,10 @@ jobs:
               assert archive.testzip() is None, "APK ZIP integrity check failed"
               bundled = archive.read("assets/index.html")
               assert bundled == source, "APK does not contain the current index.html"
+              for name in ("msa-in-morning.wav", "msa-city-small.wav"):
+                  source_audio = Path("../audio") / name
+                  if source_audio.is_file():
+                      assert archive.read("assets/audio/" + name) == source_audio.read_bytes(), f"APK audio mismatch: {name}"
           print(f"APK verified: {apk.stat().st_size:,} bytes; embedded HTML: {len(source):,} bytes")
           PY
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
