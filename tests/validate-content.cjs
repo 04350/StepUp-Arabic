@@ -6,7 +6,10 @@ const match = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTER
 assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
 assert(curriculum.spoken.length === 20, "Expected exactly 20 spoken lessons");
-assert(curriculum.formal.length === 20, "Expected exactly 20 formal lessons");
+assert(curriculum.formal.length === 29, "Expected exactly 29 formal lessons");
+assert(curriculum.formal.slice(0,4).every(x => x.kind === "alphabet"), "The MSA track must begin with four alphabet units");
+assert(curriculum.formal.filter(x => x.kind === "sound").length >= 3, "Short vowels, sukun/shadda and long vowels must be taught in sound units");
+assert(curriculum.formal.some(x => x.id === "ms-a9" && x.kind === "reading"), "Beginner reading lesson is missing");
 curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
 curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
@@ -24,7 +27,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 250, "Expected at least 250 vocabulary items; found " + vocabCount);
+assert(vocabCount >= 345, "Expected at least 345 learning entries including two audio phrases; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
@@ -40,9 +43,9 @@ const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].fi
 assert(scripts.length, "No inline application script found");
 scripts.forEach((m, i) => new vm.Script(m[2].replace(/const CURRICULUM = \{[\s\S]*?\};/, "const CURRICULUM = {};"), { filename: "inline-" + (i + 1) + ".js" }));
 const exampleCount = all.filter(x => Array.isArray(x.examples) && x.examples.length).length;
-assert(exampleCount === 40, "Every lesson must contain at least one example sentence");
+assert(exampleCount === 49, "Every lesson must contain at least one example sentence");
 const teachingCount = all.filter(x => typeof x.teaching === "string" && x.teaching.trim()).length;
-assert(teachingCount === 40, "Every lesson must contain a teaching explanation");
+assert(teachingCount === 49, "Every lesson must contain a teaching explanation");
 const bankStart = html.indexOf("function makeQuestionBank(l){");
 const bankEnd = html.indexOf("\nfunction teachingMarkup(l)", bankStart);
 assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
