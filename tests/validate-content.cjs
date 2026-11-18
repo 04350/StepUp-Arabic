@@ -40,6 +40,7 @@ assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
 assert(html.includes("data-audio"), "Audio player handling missing");
 assert(html.includes('function wordCard(w,l,i)'), "Every vocabulary card must have an audio filename");
+assert(html.includes('l.words.map((w,i)=>wordCard(w,l,i)).join("")'), "Lesson view must map each word to its unique bundled audio file");
 assert(html.includes('"generated/"+l.id+"-"+String(i+1).padStart(2,"0")+".wav"'), "Every vocabulary item must use its own bundled speech file");
 assert(html.includes('data-audio="generated/letter-'), "Every Arabic letter must have a bundled spoken-name button");
 assert(!html.includes("ללא שמע"), "The UI must not show a no-audio label on course words");
