@@ -41,6 +41,7 @@ class MainActivity : Activity() {
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
     private var pendingExport: Pair<String, ByteArray>? = null
     private val progressLock = Any()
+    private val smokeTestMode: Boolean get() = intent?.getBooleanExtra("stepup_smoke", false) == true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,13 +111,18 @@ class MainActivity : Activity() {
                 override fun onPageFinished(view: WebView, url: String) {
                     super.onPageFinished(view, url)
                     installOfflineDownloadBridge(view)
+                    if (smokeTestMode && url.contains("stepUpSmokeTest=1")) {
+                        view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return r.restored?\'PERSISTENCE_RESTORED\':(r.saved?\'PERSISTENCE_SAVED\':\'PERSISTENCE_FAILED\');})()") { result ->
+                            Log.i(TAG, "SAVE_SMOKE:$result")
+                        }
+                    }
                 }
             }
         }
 
         setContentView(webView)
         if (savedInstanceState == null) {
-            webView.loadUrl(START_PAGE)
+            webView.loadUrl(if (smokeTestMode) "$START_PAGE?stepUpSmokeTest=1" else START_PAGE)
         } else {
             webView.restoreState(savedInstanceState)
         }
