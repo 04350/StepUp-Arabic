@@ -83,3 +83,26 @@ func TestEmbeddedAudioRejectsUnknownPathsAndMethods(t *testing.T) {
 		t.Fatalf("POST status = %d, want %d", methodNotAllowed.Code, http.StatusMethodNotAllowed)
 	}
 }
+
+func TestEmbeddedArabicFontIsBundledAndServed(t *testing.T) {
+	font, err := fs.ReadFile(audioFiles, "audio/fonts/NotoSansArabic.ttf")
+	if err != nil {
+		t.Fatalf("embedded Arabic font missing: %v", err)
+	}
+	if len(font) < 100_000 || !(bytes.Equal(font[:4], []byte{0x00, 0x01, 0x00, 0x00}) || bytes.Equal(font[:4], []byte("OTTO"))) {
+		t.Fatal("embedded Arabic font is not a valid TrueType/OpenType font")
+	}
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/audio/fonts/NotoSansArabic.ttf", nil)
+	newAudioHandler(audioFiles).ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("font GET status = %d, want %d", response.Code, http.StatusOK)
+	}
+	if got := response.Header().Get("Content-Type"); got != "font/ttf" {
+		t.Fatalf("font Content-Type = %q, want font/ttf", got)
+	}
+	if !bytes.Equal(response.Body.Bytes(), font) {
+		t.Fatal("served font differs from embedded font")
+	}
+}
