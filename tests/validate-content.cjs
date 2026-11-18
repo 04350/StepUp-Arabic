@@ -37,7 +37,9 @@ assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
 assert(html.includes("data-audio"), "Audio player handling missing");
-assert(html.includes("msa-in-morning.wav") && html.includes("msa-city-small.wav"), "Human listening sample references missing");
+for (const clip of ["msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"]) {
+  assert(html.includes(clip), "Human listening sample reference missing: " + clip);
+}
 assert(fs.existsSync("scripts/fetch_audio.py"), "Audio fetch script missing");
 const manifest = fs.readFileSync("android/app/src/main/AndroidManifest.xml", "utf8");
 assert(!manifest.includes("android.permission.INTERNET"), "Android must not request Internet permission");
