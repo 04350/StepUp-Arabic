@@ -106,7 +106,7 @@ jobs:
           name: StepUp Arabic v0.1.0
           body: |
             StepUp Arabic Windows desktop app.
-            Offline Hebrew UI, 40 Arabic learning units and bundled human MSA listening samples.
+            Offline Hebrew UI, 49 Arabic learning units (20 spoken Palestinian Arabic and 29 MSA), beginner alphabet path, and bundled human MSA listening samples.
             Requires Microsoft Edge WebView2 Runtime.
           files: desktop/dist/StepUp-Arabic.exe
           overwrite_files: true
