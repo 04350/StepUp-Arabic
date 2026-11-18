@@ -91,7 +91,7 @@ jobs:
               assert archive.testzip() is None, "APK ZIP integrity check failed"
               bundled = archive.read("assets/index.html")
               assert bundled == source, "APK does not contain the current index.html"
-              for name in ("msa-in-morning.wav", "msa-city-small.wav"):
+              for name in ("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"):
                   source_audio = Path("../audio") / name
                   assert source_audio.is_file(), f"Required audio source missing: {name}"
                   assert archive.read("assets/audio/" + name) == source_audio.read_bytes(), f"APK audio mismatch: {name}"
