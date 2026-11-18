@@ -7,6 +7,8 @@ assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
 assert(curriculum.spoken.length === 20, "Expected exactly 20 spoken lessons");
 assert(curriculum.formal.length === 20, "Expected exactly 20 formal lessons");
+curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
+curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
 const ids = new Set();
 let vocabCount = 0;
@@ -50,7 +52,9 @@ vm.createContext(bankContext);
 vm.runInContext(bankSource, bankContext);
 for (const lesson of all) {
   const bank = bankContext.makeQuestionBank(lesson);
-  assert(bank.length === lesson.words.length * 2, "Each vocabulary item must generate two lesson questions: " + lesson.id);
+  const audioWords = lesson.words.filter(word => word[4]).length;
+  assert(bank.length === lesson.words.length * 2 + audioWords, "Each vocabulary item must generate two questions plus one for every audio item: " + lesson.id);
+  assert(bank.filter(question => question.audio).length === audioWords, "Each bundled recording must generate a listening question: " + lesson.id);
   const ids = new Set();
   for (const question of bank) {
     assert(!ids.has(question.id), "Duplicate question ID in " + lesson.id);
