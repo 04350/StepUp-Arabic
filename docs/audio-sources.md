@@ -26,3 +26,15 @@ Additional source evaluated:
 https://www.bayanatlabs.com/insights/arabic-speech-datasets
 
 **החלטה:** בגרסה הנוכחית נכללים רק שני קטעי Nahw המאושרים ברישיון CC BY 4.0, והם מסומנים במפורש כערבית כללית/ספרותית. במסלול הפלסטיני לא מוצגת הקלטה שאינה פלסטינית כאילו היא פלסטינית. נרחיב אותו עם שמע רק לאחר אימות רישוי ותוכן.
+
+
+## Five bundled neutral MSA recordings
+
+The current package includes five short, unmodified clips from the same CC BY 4.0 dataset:
+- في الصباح — a time phrase
+- في مدينة صغيرة — a place phrase
+- في ذات يوم — a time phrase
+- على كوكب بعيد — a distance/place phrase
+- طعامهم واحد — a short food-related sentence
+
+All five are MSA/general Arabic read speech and are displayed only in MSA units. They are not presented as Palestinian speech. Each clip is selected by exact unvowelled sentence text and copied without editing.
