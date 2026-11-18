@@ -75,6 +75,8 @@ jobs:
         run: |
           go mod tidy
           go mod download
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw "Windows audio endpoint tests failed" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           go build -trimpath -ldflags="-H=windowsgui -s -w" -o dist/StepUp-Arabic.exe .
           if (!(Test-Path "dist/StepUp-Arabic.exe")) { throw "EXE was not created" }
