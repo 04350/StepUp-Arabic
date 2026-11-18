@@ -47,7 +47,7 @@ const androidApp = fs.readFileSync("android/app/src/main/java/com/stepuparabic/a
 assert(androidApp.includes("file:///android_asset/index.html"), "Android must load its bundled local app");
 assert(androidApp.includes("domStorageEnabled = true"), "Android local progress storage must be enabled");
 const desktopApp = fs.readFileSync("desktop/main.go", "utf8");
-assert(desktopApp.includes('net.Listen("tcp4", "127.0.0.1:0")'), "Windows local server must bind only to loopback");
+assert(desktopApp.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows local server must bind only to loopback");
 assert(desktopApp.includes("//go:embed audio/*"), "Windows audio must be embedded in the executable");
 
 const fetchScript = fs.readFileSync("scripts/fetch_audio.py", "utf8");
