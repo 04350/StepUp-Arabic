@@ -1,6 +1,8 @@
-# Audio attribution
+# Audio and font attribution
 
-The WAV files placed in this folder by scripts/fetch_audio.py are unmodified excerpts from:
+## Human-recorded MSA sentence clips
+
+The five WAV files in the root of this folder are unmodified excerpts from:
 
 **Nahw.ai — Nahw Arabic Tashkeel Speech Dataset**  
 Source: https://huggingface.co/datasets/NahwAI/arabic-tashkeel-speech  
@@ -8,16 +10,48 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 Dataset authors: Nahw.ai  
 Dataset description: native Arabic speakers, recordings reviewed by human annotators, 16 kHz audio.
 
-Only these exact neutral sentence clips are selected for the first build:
+The selected clips are:
 - في الصباح — msa-in-morning.wav
 - في مدينة صغيرة — msa-city-small.wav
 - في ذات يوم — msa-one-day.wav
 - على كوكب بعيد — msa-on-distant-planet.wav
 - طعامهم واحد — msa-their-food-is-the-same.wav
 
-Attribution is provided as required by CC BY 4.0. No endorsement by Nahw.ai is implied. The source language is general Arabic/MSA-style read speech; it is not labelled as Palestinian dialect, and the app must not present it as such.
+These are the only human-recorded sentence clips in this release. They are general Arabic/MSA-style read speech, not Palestinian dialect. No endorsement by Nahw.ai is implied. The fetch script selects exact sentence matches and copies the original WAV bytes without editing them.
 
-The fetch script selects rows by exact unvowelled sentence and copies the original WAV bytes without editing them.
+## Generated Palestinian Arabic word speech
 
+The files under `generated/sp-*.wav` are synthesized at build time with:
 
-The build-generated manifest.json is also packaged in the Windows executable and Android APK. It records the exact dataset sentence, diacritized transcription, speaker ID, source URL, licence and credit for each included WAV file.
+- Model: Sofelia TTS 82M — https://huggingface.co/hamdallah/Sofelia-TTS-82M
+- Model license: Apache License 2.0
+- Voice pack: Eliaa
+- Intended variety: Levantine/Palestinian Arabic
+- Output: 24 kHz mono PCM WAV
+
+The model is used only by the build process. The end-user EXE and APK contain the finished WAV files; they do not contain or run the model, Python, PyTorch, or an online speech service. These files are synthetic speech, not human-recorded lesson clips. The model card notes that it uses a single voice and that numbers/dates/times may be expanded with MSA pronunciation.
+
+## Generated MSA words and Arabic letter names
+
+The files under `generated/ms-*.wav` and `generated/letter-*.wav` are synthesized at build time with:
+
+- Model: Nabra-7M-Distill — https://huggingface.co/oddadmix/Nabra-7M-Distill
+- ONNX export: https://huggingface.co/oddadmix/Nabra-7M-Distill-ONNX
+- Model and generator license: Apache License 2.0
+- Intended variety: Modern Standard Arabic (MSA)
+- Output: 24 kHz mono PCM WAV
+
+The Nabra engine runs only during the build process. Only the resulting WAV files are packaged in the Windows and Android installers. The model is not downloaded or executed on the user's device.
+
+## Bundled Arabic typeface
+
+- Typeface: Noto Sans Arabic
+- Source: https://github.com/google/fonts/tree/main/ofl/notosansarabic
+- License: SIL Open Font License 1.1
+- The exact `OFL.txt` license is included beside the bundled `NotoSansArabic.ttf` file under `fonts/`.
+
+## Offline operation
+
+All generated and human-recorded WAV files, the Arabic font, and its license are included in both installers. After installation, playback and Arabic text rendering do not require an Arabic Windows language pack, a separate speech engine, or an Internet connection.
+
+The build-generated manifests under `generated/` identify each text, lesson, voice/model, language variety, and license.
