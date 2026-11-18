@@ -2,6 +2,8 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const html = fs.readFileSync("index.html", "utf8");
 function assert(ok, message) { if (!ok) throw new Error(message); }
+assert(!/\?\./.test(html), "Optional chaining is not supported by the minimum Android WebView used by the emulator");
+assert(!/\?\?/.test(html), "Nullish coalescing is not supported by the minimum Android WebView used by the emulator");
 const match = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=/);
 assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
