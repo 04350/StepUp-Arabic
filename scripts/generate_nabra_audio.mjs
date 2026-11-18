@@ -8,9 +8,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
-import { NabraTTS } from "nabra-tts";
 
 const ROOT = process.cwd();
+const NABRA_ROOT = path.join(ROOT, ".build", "nabra-tts");
+const { NabraTTS } = await import(pathToFileURL(path.join(NABRA_ROOT, "dist", "index.js")).href);
 const HTML = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const OUT = path.join(ROOT, "audio", "generated");
 fs.mkdirSync(OUT, { recursive: true });
@@ -36,7 +37,7 @@ const letterNames = [
 ];
 assert(letterNames.length === letters.length, "Arabic letter-name map does not match the alphabet");
 
-const require = createRequire(import.meta.url);
+const require = createRequire(path.join(NABRA_ROOT, "package.json"));
 const ortDist = path.dirname(require.resolve("onnxruntime-web")) + path.sep;
 const modelBase = "https://huggingface.co/oddadmix/Nabra-7M-Distill-ONNX/resolve/main";
 
