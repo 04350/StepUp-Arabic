@@ -4,6 +4,7 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -13,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"syscall"
+	"time"
 	"unsafe"
 
 	webview2 "github.com/jchv/go-webview2"
@@ -146,6 +148,34 @@ func main() {
 	defer w.Destroy()
 	w.SetTitle("StepUp Arabic — לומדים ערבית צעד צעד")
 	w.SetSize(1280, 860, webview2.HintNone)
+	if err := w.Bind("StepUpNativeSaveFile", func(fileName string, content string) (string, error) {
+		if len(content) == 0 || len(content) > 2_000_000 || !json.Valid([]byte(content)) {
+			return "", fmt.Errorf("קובץ הגיבוי אינו תקין או גדול מדי")
+		}
+		home, homeErr := os.UserHomeDir()
+		if homeErr != nil {
+			return "", homeErr
+		}
+		dir := filepath.Join(home, "Downloads", "StepUp Arabic")
+		if mkdirErr := os.MkdirAll(dir, 0700); mkdirErr != nil {
+			return "", mkdirErr
+		}
+		base := filepath.Base(fileName)
+		ext := filepath.Ext(base)
+		stem := strings.TrimSuffix(base, ext)
+		if stem == "" || stem == "." {
+			stem = "StepUp-Arabic-backup"
+		}
+		finalName := fmt.Sprintf("%s-%s%s", stem, time.Now().Format("20060102-150405"), ext)
+		destination := filepath.Join(dir, finalName)
+		if writeErr := os.WriteFile(destination, []byte(content), 0600); writeErr != nil {
+			return "", writeErr
+		}
+		return destination, nil
+	}); err != nil {
+		messageBox("StepUp Arabic", "לא ניתן להפעיל את שירות שמירת הגיבויים המקומי.\\n\\n"+err.Error())
+		return
+	}
 	w.Navigate(fmt.Sprintf("http://127.0.0.1:%d/", listener.Addr().(*net.TCPAddr).Port))
 	w.Run()
 }
