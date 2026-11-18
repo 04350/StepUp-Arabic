@@ -131,6 +131,8 @@ jobs:
             sleep 5
             adb shell pidof com.stepuparabic.app
             adb shell dumpsys activity activities | grep -q "com.stepuparabic.app/.MainActivity"
+            adb logcat -d -s StepUpArabic:I
+            adb logcat -d -s StepUpArabic:I | grep -q "SAVE_PROGRESS_SUCCESS"
             adb shell run-as com.stepuparabic.app cat files/stepuparabic-progress.json > /tmp/stepup-progress-first.json
             test -s /tmp/stepup-progress-first.json
             grep -q '"ms-a1"' /tmp/stepup-progress-first.json
