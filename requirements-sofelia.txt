@@ -1,0 +1,8 @@
+# CPU-only build-time dependencies for the Sofelia Palestinian Arabic TTS model.
+# PyTorch is installed separately from its CPU wheel index in GitHub Actions.
+numpy<2
+soundfile>=0.12
+kokoro>=0.9.4,<1.0
+misaki>=0.9.4,<1.0
+espeakng-loader>=0.2
+phonemizer-fork>=3.0
