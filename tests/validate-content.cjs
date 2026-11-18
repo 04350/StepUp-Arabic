@@ -36,6 +36,15 @@ assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
 assert(html.includes("data-audio"), "Audio player handling missing");
 assert(html.includes("msa-in-morning.wav") && html.includes("msa-city-small.wav"), "Human listening sample references missing");
 assert(fs.existsSync("scripts/fetch_audio.py"), "Audio fetch script missing");
+const manifest = fs.readFileSync("android/app/src/main/AndroidManifest.xml", "utf8");
+assert(!manifest.includes("android.permission.INTERNET"), "Android must not request Internet permission");
+const androidApp = fs.readFileSync("android/app/src/main/java/com/stepuparabic/app/MainActivity.kt", "utf8");
+assert(androidApp.includes("file:///android_asset/index.html"), "Android must load its bundled local app");
+assert(androidApp.includes("domStorageEnabled = true"), "Android local progress storage must be enabled");
+const desktopApp = fs.readFileSync("desktop/main.go", "utf8");
+assert(desktopApp.includes('net.Listen("tcp4", "127.0.0.1:0")'), "Windows local server must bind only to loopback");
+assert(desktopApp.includes("//go:embed audio/*"), "Windows audio must be embedded in the executable");
+
 const fetchScript = fs.readFileSync("scripts/fetch_audio.py", "utf8");
 assert(fetchScript.includes("CC BY 4.0") || fetchScript.includes("CC-BY-4.0"), "Audio source licence must be documented");
 
