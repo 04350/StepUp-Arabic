@@ -96,7 +96,7 @@ const androidMain = fs.readFileSync("android/app/src/main/java/com/stepuparabic/
 assert(androidMain.includes('AtomicFile(File(filesDir, "stepuparabic-progress.json"))'), "Android must keep an atomic private progress file");
 assert(androidMain.includes("fun loadProgress(): String") && androidMain.includes("fun saveProgress(json: String): Boolean"), "Android native progress bridge methods are missing");
 assert(html.includes("window.__stepUpSmokeTest") && html.includes("stepUpSmokeTest"), "Android persistence smoke hook is missing");
-assert(androidMain.includes("PERSISTENCE_RESTORED") && androidMain.includes("stepup_smoke"), "Android activity must support the two-launch persistence smoke test");
+assert(androidMain.includes("SAVE_SMOKE:$result") && androidMain.includes("JSON.stringify(r)") && androidMain.includes("stepup_smoke"), "Android activity must support the structured two-launch persistence smoke test");
 const desktopMain = fs.readFileSync("desktop/main.go", "utf8");
 assert(desktopMain.includes('net.Listen("tcp4", "127.0.0.1:41739")'), "Windows must use a stable loopback origin for persistent localStorage");
 assert(desktopMain.includes('filepath.Join(dataDir, "WebView2")'), "Windows WebView2 profile directory must remain stable");
