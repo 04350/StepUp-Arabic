@@ -12,7 +12,7 @@ function extractFunction(name) {
 const key = html.match(/const KEY="([^"]+)"/)?.[1];
 const emptyText = html.match(/const EMPTY=(\{[^\n]+\});/)?.[1];
 assert(key && emptyText, "Storage key or empty state is missing");
-const empty = JSON.parse(emptyText);
+const empty = vm.runInNewContext("(" + emptyText + ")");
 const functions = ["normalizeState", "loadState", "save"].map(extractFunction).join("\n");
 
 function makeContext({ localStorage, nativeStore }) {
