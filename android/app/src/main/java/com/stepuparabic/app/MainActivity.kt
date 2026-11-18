@@ -112,7 +112,7 @@ class MainActivity : Activity() {
                     super.onPageFinished(view, url)
                     installOfflineDownloadBridge(view)
                     Log.i(TAG, "PAGE_FINISHED:" + url + "; smoke=" + smokeTestMode)
-                    if (smokeTestMode && url.contains("stepUpSmokeTest=1")) {
+                    if (smokeTestMode) {
                         view.evaluateJavascript("(function(){var r=window.__stepUpSmokeTest?window.__stepUpSmokeTest.run():{saved:false,restored:false};return r.restored?\'PERSISTENCE_RESTORED\':(r.saved?\'PERSISTENCE_SAVED\':\'PERSISTENCE_FAILED\');})()") { result ->
                             Log.i(TAG, "SAVE_SMOKE:$result")
                         }
@@ -163,6 +163,9 @@ class MainActivity : Activity() {
     }
 
     inner class NativeFileBridge {
+        @JavascriptInterface
+        fun isPersistenceSmokeTest(): Boolean = smokeTestMode
+
         @JavascriptInterface
         fun loadProgress(): String {
             synchronized(progressLock) {
