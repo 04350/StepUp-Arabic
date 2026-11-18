@@ -38,6 +38,27 @@ const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].fi
 assert(scripts.length, "No inline application script found");
 scripts.forEach((m, i) => new vm.Script(m[2].replace(/const CURRICULUM = \{[\s\S]*?\};/, "const CURRICULUM = {};"), { filename: "inline-" + (i + 1) + ".js" }));
 const exampleCount = all.filter(x => Array.isArray(x.examples) && x.examples.length).length;
-assert(exampleCount >= 20, "Expected example sentences in at least 20 lessons");
+assert(exampleCount === 40, "Every lesson must contain at least one example sentence");
+const teachingCount = all.filter(x => typeof x.teaching === "string" && x.teaching.trim()).length;
+assert(teachingCount === 40, "Every lesson must contain a teaching explanation");
+const bankStart = html.indexOf("function makeQuestionBank(l){");
+const bankEnd = html.indexOf("\\nfunction teachingMarkup(l)", bankStart);
+assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
+const bankSource = html.slice(bankStart, bankEnd);
+const bankContext = { shuffle: items => items.slice() };
+vm.createContext(bankContext);
+vm.runInContext(bankSource, bankContext);
+for (const lesson of all) {
+  const bank = bankContext.makeQuestionBank(lesson);
+  assert(bank.length === lesson.words.length * 2, "Each vocabulary item must generate two lesson questions: " + lesson.id);
+  const ids = new Set();
+  for (const question of bank) {
+    assert(!ids.has(question.id), "Duplicate question ID in " + lesson.id);
+    ids.add(question.id);
+    assert(question.options.length === 4, "Each question must have four answer options");
+    assert(new Set(question.options).size === 4, "Question options must be unique");
+    assert(question.options.includes(question.answer), "Correct answer is missing from options");
+  }
+}
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
-console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
+console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
