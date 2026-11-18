@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
+import android.util.AtomicFile
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -23,6 +24,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileNotFoundException
 import java.util.Locale
 
 class MainActivity : Activity() {
@@ -38,6 +40,7 @@ class MainActivity : Activity() {
     @Volatile private var offlineEnglishTtsReady = false
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
     private var pendingExport: Pair<String, ByteArray>? = null
+    private val progressLock = Any()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,6 +156,47 @@ class MainActivity : Activity() {
     }
 
     inner class NativeFileBridge {
+        @JavascriptInterface
+        fun loadProgress(): String {
+            synchronized(progressLock) {
+                return try {
+                    AtomicFile(File(filesDir, "stepuparabic-progress.json"))
+                        .openRead()
+                        .bufferedReader(Charsets.UTF_8)
+                        .use { it.readText() }
+                } catch (_: FileNotFoundException) {
+                    ""
+                } catch (error: Exception) {
+                    Log.e(TAG, "Unable to load automatic progress save", error)
+                    ""
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun saveProgress(json: String): Boolean {
+            val bytes = json.toByteArray(Charsets.UTF_8)
+            if (bytes.isEmpty() || bytes.size > 2_000_000) {
+                Log.w(TAG, "Progress save rejected: empty or too large")
+                return false
+            }
+            return synchronized(progressLock) {
+                val atomic = AtomicFile(File(filesDir, "stepuparabic-progress.json"))
+                var output: FileOutputStream? = null
+                try {
+                    org.json.JSONObject(json)
+                    output = atomic.startWrite()
+                    output.write(bytes)
+                    output.fd.sync()
+                    atomic.finishWrite(output)
+                    true
+                } catch (error: Exception) {
+                    output?.let { atomic.failWrite(it) }
+                    Log.e(TAG, "Unable to persist automatic progress save", error)
+                    false
+                }
+            }
+        }
         @JavascriptInterface
         fun speakEnglish(text: String, slow: Boolean): Boolean {
             val engine = textToSpeech ?: return false
