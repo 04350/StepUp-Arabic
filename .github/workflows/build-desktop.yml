@@ -35,6 +35,9 @@ jobs:
       - name: Validate lessons, vocabulary and JavaScript
         run: node tests/validate-content.cjs
 
+      - name: Test local save, restore and Android fallback
+        run: node tests/test-persistence.cjs
+
       - name: Set up Python for licensed audio assets
         uses: actions/setup-python@v5
         with:
