@@ -1,52 +1,37 @@
-# StepUp Arabic — תוכנת לימוד ערבית אופליין
+# StepUp Arabic — קורס ערבית אופליין
 
-פרויקט מקביל ל-StepUp English: יישום לימוד אחד, ארוז לתוכנת Windows עצמאית ולאפליקציית Android.
+קורס דיגיטלי בעברית ללימוד ערבית מאפס, עם תוכנת Windows ואפליקציית Android עצמאיות. המבנה והעיצוב מבוססים על StepUp English.
 
-## מטרות
-- לימוד מאפס מוחלט: 28 האותיות, צורות החיבור, ניקוד וקריאה.
-- שני מסלולים נפרדים: 20 יחידות בערבית מדוברת פלסטינית ו-20 יחידות בערבית ספרותית (MSA).
-- שיעורים, תרגילים, מבחנים, הקלטות והתקדמות מקומיים.
-- ממשק בעברית RTL עם הצגה נכונה של ערבית מימין לשמאל.
-- שימוש ללא אינטרנט אחרי ההתקנה.
+## מה יש בגרסה הנוכחית
+- 40 יחידות לימוד: 20 בערבית מדוברת פלסטינית ו-20 בערבית ספרותית תקנית (MSA).
+- 280 פריטי אוצר מילים בסיסיים, עם כתיב ערבי, תרגום לעברית ותעתיק עזר.
+- כל 40 היחידות כוללות הסבר קצר ודוגמת משפט.
+- האלפבית הערבי: 28 אותיות, עם צורות נפרדות, תחיליות, אמצעיות וסופיות.
+- לכל שיעור מאגר שאלות שנוצר מתוכן השיעור: מערבית לעברית ומהעברית לערבית. השאלות והתשובות מעורבבות; לכל שאלה ארבע אפשרויות ומשוב.
+- מבחן שיעור, מבחן מסכם לחומר שנלמד, שמירת ציונים ורשימת טעויות לתרגול.
+- שתי הקלטות אנושיות קצרות בערבית כללית/ספרותית ממאגר Nahw, ברישיון CC BY 4.0. בשיעורים המתאימים קיימות גם שאלות הבנת הנשמע.
+- התקדמות, ציונים והגדרות נשמרים מקומית; ייצוא ושחזור גיבוי בקובץ JSON.
+
+## מה עדיין מוגבל
+- שתי ההקלטות הן בערבית כללית/ספרותית, ולא במבטא פלסטיני. אין כרגע הקלטות מאושרות להפצה למסלול הפלסטיני, ולכן התוכנה לא תציג קול אחר כאילו הוא פלסטיני.
+- מודל Nabra נבדק כאפשרות עתידית ליצירת קול MSA, אבל אינו משולב כרגע בתוך האפליקציה.
+- התוכן הוא גרסת לימוד ראשונה ונדרש עדיין מעבר הגהה של דובר ערבית ילידי/מורה, במיוחד על התעתיק, הניואנסים המדוברים והדוגמאות.
+- אין סנכרון אוטומטי בין מכשירים; מעבר בין המחשב לטלפון נעשה באמצעות גיבוי ושחזור.
 
 ## מבנה
-- index.html — ממשק ותוכן לימוד.
+- index.html — ממשק ותוכן הלימוד.
 - desktop/ — מעטפת Windows באמצעות Go ו-Microsoft WebView2.
-- android/ — מעטפת Android באמצעות WebView מקומי וללא הרשאת INTERNET.
-- .github/workflows/ — בניית EXE ו-APK.
-- tests/ — בדיקות תוכן ו-JavaScript.
-- docs/ — אפיון ומקורות מדיה.
+- android/ — מעטפת Android באמצעות WebView מקומי. אין הרשאת INTERNET במניפסט.
+- .github/workflows/ — בנייה אוטומטית של EXE ו-APK, הורדת קטעי השמע המורשים, אימות ההטמעה ובדיקת פתיחה.
+- tests/ — בדיקות לתוכן, לשאלות ולתחביר JavaScript.
+- docs/ — אפיון, מפת יחידות ותיעוד רישיונות.
 
-## מצב התחלתי
-המאגר נפתח כעת עם אב-טיפוס תשתיתי: מסכי בית, אלפבית, שני מסלולים, שיעורי דוגמה, תרגיל הדגמה, שמירת התקדמות וגיבוי/שחזור. אין לראות בשלב זה קורס שלם או חבילת התקנה מוכנה.
+## שמע ורישוי
+הקלטות Nahw נבחרות לפי תמלול מדויק, מועתקות ללא עריכה, נארזות בשתי ההתקנות ומוצגות רק במסלול הספרותי. הקרדיט והרישיון מצורפים תחת audio/ATTRIBUTION.md. פירוט המקורות והבדיקה של מאגרי הדיבור הפלסטיני נמצא ב-docs/audio-sources.md.
 
-## אסטרטגיית שמע ורישוי
-1. Nahw Arabic Tashkeel Speech Dataset: יותר מ-1,000 הקלטות של דוברי ערבית ילידיים, תמלול מנוקד, WAV 16 kHz ורישיון CC BY 4.0. נבחר קטעים שמתאימים לתרגילי הבנת הנשמע בערבית ספרותית, עם קרדיט ורישיון מתאים.
-2. Nabra-7M-Distill: מודל TTS קטן (Apache 2.0, כ-28.7MB), שמיועד ל-MSA ויכול להפיק קול במכשיר. זהו קול מסונתז, לא הקלטה אנושית, והוא יסומן בהתאם.
-3. ערבית מדוברת פלסטינית: לא נארוז מאגר לפני שנאמת הרשאה מפורשת להפצה ולהטמעה אופליין. מאגר Casablanca Palestine שנבדק הוא CC BY-NC-ND 4.0, ולכן לא נחתוך או נערוך ממנו קטעים. עד למציאת מקור מתאים, המסלול המדובר יוכל להתחיל בטקסט ובתרגול כתוב.
-
-Common Voice Arabic 27 הוא CC0, אבל דף המאגר אוסר במפורש re-host/re-share שלו. לא נעתיק את המאגר לתוך התקנות.
-
-## קישורים למקורות שנבדקו
-- Nahw dataset: https://huggingface.co/datasets/NahwAI/arabic-tashkeel-speech
-- Nahw licensing: https://www.nahw.ai/blog/arabic-speech-dataset
-- Nabra model: https://huggingface.co/oddadmix/Nabra-7M-Distill
-- Nabra browser implementation: https://github.com/Oddadmix/nabra-tts
-- Common Voice Arabic 27: https://mozilladatacollective.com/datasets/cmu5wom3z00ceo107guxtg4xa
-- Casablanca Palestine: https://huggingface.co/datasets/UBC-NLP/Casablanca/tree/main/Palestine
-
-כל קובץ שמע שייכנס בפועל יתועד עם מקור, רישיון וקרדיט ב-audio/ATTRIBUTION.md.
-
-## בנייה
+## בנייה והורדה
 - Windows: GitHub Actions → Build StepUp Arabic desktop app.
 - Android: GitHub Actions → Build StepUp Arabic Android APK.
+- הורדה מרוכזת תהיה זמינה ב-GitHub Releases לאחר השלמת בדיקות שתי הפלטפורמות.
 
-היישומים יארזו את התוכן והמדיה בתוך קובצי ההתקנה. לא תהיה תלות בשרת בזמן הלימוד.
-
-
-## Human listening samples
-The build workflow attempts to fetch two unmodified, neutral MSA clips from Nahw.ai's CC BY 4.0 dataset:
-- في الصباح
-- في مدينة صغيرة
-
-The clips are packaged in the Windows executable and Android APK when the dataset fetch succeeds. The app remains usable without them; unavailable audio controls explain that the clip is not included. These clips are MSA/general Arabic speech, not Palestinian-dialect recordings. Attribution and the source manifest are included in audio/.
+היישומים נועדו לפעול ללא אינטרנט לאחר ההתקנה. האינטרנט נדרש רק בתהליך הבנייה לצורך הורדת קטעי המקור המורשים.
