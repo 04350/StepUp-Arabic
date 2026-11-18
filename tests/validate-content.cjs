@@ -65,4 +65,5 @@ for (const lesson of all) {
   }
 }
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
+assert(html.includes("const listening=questionBank.filter(q=>q.audio)"), "Final exam must include the listening questions from completed lessons");
 console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item plus 1 for each human audio clip", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
