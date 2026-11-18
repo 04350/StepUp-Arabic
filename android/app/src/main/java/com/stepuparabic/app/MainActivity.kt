@@ -259,7 +259,7 @@ class MainActivity : Activity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val values = ContentValues().apply {
                         put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                        put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
+                        put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
                         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/StepUp Arabic")
                         put(MediaStore.MediaColumns.IS_PENDING, 1)
                     }
