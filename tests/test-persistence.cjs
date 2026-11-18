@@ -54,6 +54,7 @@ assert.equal(current.preferences.activeTrack, "formal", "Default track should be
 current.completed.push("ms-a1");
 current.preferences.activeTrack = "spoken";
 current.scores["ms-a1"] = 90;
+current.finalExams.push({at:"2026-11-18T12:00:00.000Z",score:90,correct:9,total:10,lessons:["ms-a1"]});
 browserContext.writeState(current);
 assert.equal(browserContext.save(), true, "Save should succeed in browser storage");
 assert.ok(memory.has(key), "Browser localStorage should contain saved state");
