@@ -39,6 +39,21 @@ assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
 assert(html.includes("data-audio"), "Audio player handling missing");
+assert(html.includes('function wordCard(w,l,i)'), "Every vocabulary card must have an audio filename");
+assert(html.includes('"generated/"+l.id+"-"+String(i+1).padStart(2,"0")+".wav"'), "Every vocabulary item must use its own bundled speech file");
+assert(html.includes('data-audio="generated/letter-'), "Every Arabic letter must have a bundled spoken-name button");
+assert(!html.includes("ללא שמע"), "The UI must not show a no-audio label on course words");
+assert(html.includes('new URL("audio/"+encodeURIComponent(name),window.location.href)'), "Audio URLs must work from both Windows HTTP and Android file assets");
+assert(html.includes('audio/fonts/NotoSansArabic.ttf'), "The Arabic font must be loaded from the bundled local font file");
+assert(fs.existsSync("scripts/generate_nabra_audio.mjs"), "MSA and letter audio generator missing");
+assert(fs.existsSync("scripts/generate_sofelia_audio.py"), "Palestinian Arabic audio generator missing");
+assert(fs.existsSync("scripts/fetch_arabic_font.py"), "Bundled Arabic font fetch script missing");
+assert(fs.existsSync("tests/verify-generated-audio.py"), "Generated offline audio verifier missing");
+const windowsWorkflow = fs.readFileSync(".github/workflows/build-desktop.yml", "utf8");
+const androidWorkflow = fs.readFileSync(".github/workflows/build-android.yml", "utf8");
+assert(windowsWorkflow.includes("scripts/generate_nabra_audio.mjs") && windowsWorkflow.includes("scripts/generate_sofelia_audio.py") && windowsWorkflow.includes("audio/fonts"), "Windows workflow must generate and embed all Arabic speech and font files");
+assert(androidWorkflow.includes("scripts/generate_nabra_audio.mjs") && androidWorkflow.includes("scripts/generate_sofelia_audio.py") && androidWorkflow.includes("audio/fonts"), "Android workflow must generate and embed all Arabic speech and font files");
+
 for (const clip of ["msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"]) {
   assert(html.includes(clip), "Human listening sample reference missing: " + clip);
 }
