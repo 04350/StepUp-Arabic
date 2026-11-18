@@ -59,7 +59,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path "desktop/audio" | Out-Null
           Copy-Item -LiteralPath "audio/ATTRIBUTION.md" -Destination "desktop/audio/ATTRIBUTION.md" -Force
           Get-ChildItem -Path "audio" -Filter "*.wav" -File | ForEach-Object { Copy-Item $_.FullName -Destination "desktop/audio" -Force }
-          foreach ($clip in @("msa-in-morning.wav", "msa-city-small.wav")) {
+          foreach ($clip in @("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav")) {
             $clipPath = Join-Path "desktop/audio" $clip
             if (!(Test-Path $clipPath)) { throw "Required human audio clip is missing: $clip" }
             if ((Get-Item $clipPath).Length -lt 1000) { throw "Audio clip is unexpectedly small: $clip" }
