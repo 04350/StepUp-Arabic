@@ -50,6 +50,11 @@ assert(fs.existsSync("scripts/generate_nabra_audio.mjs"), "MSA and letter audio 
 assert(fs.existsSync("scripts/generate_sofelia_audio.py"), "Palestinian Arabic audio generator missing");
 assert(fs.existsSync("scripts/fetch_arabic_font.py"), "Bundled Arabic font fetch script missing");
 assert(fs.existsSync("tests/verify-generated-audio.py"), "Generated offline audio verifier missing");
+assert(fs.existsSync("tests/android-emulator-smoke.py"), "Standalone Android emulator smoke test missing");
+const androidSmoke = fs.readFileSync("tests/android-emulator-smoke.py", "utf8");
+assert(androidSmoke.includes("SAVE_PROGRESS_SUCCESS") && androidSmoke.includes('"restored":true'), "Android emulator smoke test must verify initial save and restart restore");
+assert(androidWorkflow.includes("script: python tests/android-emulator-smoke.py"), "Android workflow must run the standalone Python smoke test rather than multiline shell loops");
+
 const windowsWorkflow = fs.readFileSync(".github/workflows/build-desktop.yml", "utf8");
 const androidWorkflow = fs.readFileSync(".github/workflows/build-android.yml", "utf8");
 assert(windowsWorkflow.includes("scripts/generate_nabra_audio.mjs") && windowsWorkflow.includes("scripts/generate_sofelia_audio.py") && windowsWorkflow.includes("audio/fonts"), "Windows workflow must generate and embed all Arabic speech and font files");
