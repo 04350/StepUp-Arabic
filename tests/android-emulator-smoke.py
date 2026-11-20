@@ -81,13 +81,24 @@ def main() -> int:
     print("Installing current APK...")
     adb("install", "-r", "android/app/build/outputs/apk/debug/app-debug.apk", timeout=180)
     adb("logcat", "-c")
-    adb("shell", "am", "start", "-n", ACTIVITY, "--ez", "stepup_smoke", "true")
-    pid = adb("shell", "pidof", PACKAGE, timeout=20)
+    launch_output = adb("shell", "am", "start", "-W", "-n", ACTIVITY, "--ez", "stepup_smoke", "true", timeout=60)
+    print("Launch result: " + launch_output)
+    # Activity startup and process registration can lag behind am start on a
+    # cold emulator. Poll rather than treating the first empty pidof as a crash.
+    launch_deadline = time.monotonic() + 45
+    pid = ""
+    activity_list = ""
+    while time.monotonic() < launch_deadline:
+        pid = adb("shell", "pidof", PACKAGE, timeout=20, check=False)
+        activity_list = adb("shell", "dumpsys", "activity", "activities", timeout=30, check=False)
+        if pid and ACTIVITY in activity_list:
+            break
+        time.sleep(2)
     if not pid:
-        raise RuntimeError("App process did not remain running after launch")
-    activity_list = adb("shell", "dumpsys", "activity", "activities", timeout=30)
+        crash_logs = adb("logcat", "-d", "-s", "AndroidRuntime:E", "ActivityManager:E", timeout=30)
+        raise RuntimeError("App process did not remain running after launch. Launch output: " + launch_output + "\\n" + crash_logs[-8000:])
     if ACTIVITY not in activity_list:
-        raise RuntimeError("MainActivity did not become the foreground activity")
+        raise RuntimeError("MainActivity did not become the foreground activity. Launch output: " + launch_output)
 
     first_logs = wait_for_log(
         lambda logs: "SAVE_PROGRESS_SUCCESS:" in logs,
