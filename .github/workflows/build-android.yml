@@ -180,7 +180,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: StepUp-Arabic-Android
-          path: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
+          path: android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -195,7 +195,7 @@ jobs:
             Offline Hebrew UI with 57 learning units: 24 Palestinian spoken Arabic and 33 MSA. Includes smart review, dictionary, favorites, sentence audio, daily goals, dark theme and local progress.
             Beginner alphabet, connected letter forms, vowels, reading, lesson quizzes and two bundled human MSA listening clips.
             Signed APK for manual installation. Android 6.0 (API 23) or newer.
-          files: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
+          files: android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
