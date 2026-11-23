@@ -26,7 +26,7 @@ const curriculum = JSON.parse(curriculumMatch[1]);
 const lettersMatch = HTML.match(/const LETTERS=(\[[\s\S]*?\]);\s*const KEY=/);
 assert(lettersMatch, "Cannot locate Arabic alphabet");
 const letters = JSON.parse(lettersMatch[1]);
-assert(curriculum.formal && curriculum.formal.length === 29, "Expected 29 MSA lessons");
+assert(curriculum.formal && curriculum.formal.length === 33, "Expected 29 MSA lessons");
 assert(letters.length === 28, "Expected 28 Arabic letters");
 
 const letterNames = [
