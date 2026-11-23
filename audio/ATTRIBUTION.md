@@ -64,3 +64,8 @@ All example sentences attached to the 57 lessons receive a separate generated WA
 - Modern Standard Arabic track: Nabra-7M-Distill, Apache-2.0 model.
 - Output: 24 kHz mono PCM WAV.
 These are AI-synthesized examples, not human recordings. The translation and lesson ID are recorded in the generated manifest.
+
+
+## Asset and license audit
+
+The authoritative inventory of bundled audio and font assets is maintained in `docs/license-audit.md`. The CI verifier cross-checks each generated WAV against its source text, lesson ID, dialect label and model-license metadata, and checks the five human-recorded clips against their CC BY 4.0 attribution manifest. Build-time TTS dependencies are not packaged in the end-user installers.
