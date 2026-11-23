@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#f5f6fb"><title>StepUp Arabic — לומדים ערבית צעד צעד</title>
 <style>
 @font-face{font-family:"StepUpArabic";src:url("audio/fonts/NotoSansArabic.ttf") format("truetype");font-style:normal;font-weight:100 900;font-display:swap}
-:root{--bg:#f5f6fb;--panel:#fff;--ink:#20243a;--muted:#73788e;--line:#e7e9f2;--brand:#6257d9;--soft:#eeecff;--good:#16835d;--bad:#bd4242;--shadow:0 10px 34px rgba(35,37,70,.07);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+:root{--arabic-font-scale:1;--bg:#f5f6fb;--panel:#fff;--ink:#20243a;--muted:#73788e;--line:#e7e9f2;--brand:#6257d9;--soft:#eeecff;--good:#16835d;--bad:#bd4242;--shadow:0 10px 34px rgba(35,37,70,.07);font-family:Arial,"Noto Sans Hebrew",sans-serif}
 [lang="ar"],.word-ar,.letter b,.forms{font-family:"StepUpArabic",serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:inherit;line-height:1.55}button,input{font:inherit}button{cursor:pointer}
 .app{max-width:1440px;margin:auto;min-height:100vh;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
@@ -25,9 +25,9 @@ main{min-width:0}.hero{padding:24px 26px;background:linear-gradient(120deg,#fff 
 .lesson-no{flex:0 0 42px;height:42px;border-radius:13px;background:var(--soft);color:var(--brand);display:grid;place-items:center;font-weight:800}.lesson-card h4{margin:0 0 4px;font-size:15px}.lesson-card p{margin:0 0 9px;color:var(--muted);font-size:12px}
 .lesson-meta{display:flex;align-items:center;gap:9px;color:#989bad;font-size:11px}.status{font-size:10px;background:#f1f2f7;color:#777d91;border-radius:20px;padding:3px 8px}.status.done{background:#e7f6ef;color:var(--good)}
 .panel{padding:22px}.panel h2{font-size:22px;margin:0 0 6px}.muted{color:var(--muted)}.letter-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:14px 0}
-.letter{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 5px;text-align:center;min-width:0}.letter b{display:block;font-size:28px;line-height:1.4}.letter small{display:block;color:var(--muted);font-size:10px}.forms{font-family:serif;font-size:17px;color:#5146c5}
+.letter{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 5px;text-align:center;min-width:0}.letter b{display:block;font-size:calc(28px * var(--arabic-font-scale,1));line-height:1.4}.letter small{display:block;color:var(--muted);font-size:10px}.forms{font-family:serif;font-size:calc(17px * var(--arabic-font-scale,1));color:#5146c5}
 .lesson-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px}.info-box{background:#f8f7ff;border:1px solid #ece9ff;border-radius:14px;padding:14px;margin:12px 0}
-.word-card{display:flex;align-items:center;justify-content:space-between;gap:15px;border:1px solid var(--line);border-radius:15px;padding:14px;margin:10px 0}.word-ar{font-size:28px;font-weight:700;direction:rtl}.word-he{color:var(--muted);font-size:13px}.word-note{color:#999daf;font-size:11px}
+.word-card{display:flex;align-items:center;justify-content:space-between;gap:15px;border:1px solid var(--line);border-radius:15px;padding:14px;margin:10px 0}.word-ar{font-size:calc(28px * var(--arabic-font-scale,1));font-weight:700;direction:rtl}.word-he{color:var(--muted);font-size:13px}.word-note{color:#999daf;font-size:11px}
 .audio{border:0;background:var(--soft);color:var(--brand);border-radius:10px;padding:8px 12px;font-weight:700}.audio:disabled{opacity:.5;cursor:not-allowed}
 .question{font-size:19px;font-weight:700;margin:16px 0}.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.answer{padding:13px;border:1px solid var(--line);background:white;border-radius:12px;text-align:center}.answer:hover{border-color:#beb8ff}
 .answer.correct{border-color:#68bd97;background:#effaf4}.answer.wrong{border-color:#e39b9b;background:#fff4f4}.feedback{min-height:28px;margin:12px 0;font-size:13px;font-weight:700}.hidden{display:none!important}
@@ -36,7 +36,7 @@ main{min-width:0}.hero{padding:24px 26px;background:linear-gradient(120deg,#fff 
 .guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.guide-card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff}.guide-card h3{font-size:16px;margin:0 0 7px}.guide-card p{margin:0;color:var(--muted);font-size:13px}.guide-label{display:inline-block;padding:3px 9px;border-radius:30px;background:var(--soft);color:var(--brand);font-size:11px;font-weight:700;margin-bottom:9px}.guide-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}.guide-table th,.guide-table td{padding:10px;text-align:right;vertical-align:top;border-bottom:1px solid var(--line)}.guide-table th{background:#f8f7ff;color:#555078}.save-status{font-size:11px;color:var(--muted);white-space:nowrap}
 .footer{margin:22px 0 8px;text-align:center;color:#a0a3b2;font-size:11px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow:auto;gap:3px}.nav-title,.side-note{display:none}.nav{white-space:nowrap;width:auto}.lesson-layout{grid-template-columns:1fr}}
-@media(max-width:620px){.guide-grid{grid-template-columns:1fr}.guide-table{font-size:12px}.guide-table th,.guide-table td{padding:7px}.app{padding:12px}.top{align-items:flex-start}.top-actions .pill{display:none}.hero{padding:19px}.hero h2{font-size:21px}.hero-mark{font-size:52px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.lesson-grid{grid-template-columns:1fr}.letter-grid{grid-template-columns:repeat(4,1fr)}.answers{grid-template-columns:1fr 1fr}.panel{padding:15px}.word-ar{font-size:25px}}
+@media(max-width:620px){.guide-grid{grid-template-columns:1fr}.guide-table{font-size:12px}.guide-table th,.guide-table td{padding:7px}.app{padding:12px}.top{align-items:flex-start}.top-actions .pill{display:none}.hero{padding:19px}.hero h2{font-size:21px}.hero-mark{font-size:52px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.lesson-grid{grid-template-columns:1fr}.letter-grid{grid-template-columns:repeat(4,1fr)}.answers{grid-template-columns:1fr 1fr}.panel{padding:15px}.word-ar{font-size:calc(25px * var(--arabic-font-scale,1))}}
 
 /* StepUp Arabic 2.0 enhancements */
 [data-theme="dark"]{--bg:#151722;--panel:#202433;--ink:#edf0fa;--muted:#aeb5c9;--line:#363d51;--brand:#a79cff;--soft:#302d4c;--good:#64d3a6;--bad:#ff8d8d;--shadow:0 10px 34px rgba(0,0,0,.2)}
@@ -113,7 +113,7 @@ main{min-width:0}.hero{padding:24px 26px;background:linear-gradient(120deg,#fff 
 <section id="view-dictionary" class="hidden"><div class="panel"><h2>מילון ערבי–עברי</h2><p class="muted">חפש לפי מילה בערבית, תרגום, תעתיק או הערה.</p><div class="field"><label for="dictionarySearch">חיפוש מילה</label><input id="dictionarySearch" type="search" placeholder="לדוגמה: שלום, مرحبا או marhaba" autocomplete="off"></div><div id="dictionaryResults"></div></div></section>
 <section id="view-listening" class="hidden"><div class="panel"><h2>מעבדת שמיעה</h2><p class="muted">האזן למילים ולמשפטים בלי להסתכל קודם על התרגום. פתח את הכרטיס רק אחרי שניסית להבין.</p><div class="field"><label for="listeningTrack">מסלול</label><select id="listeningTrack"><option value="all">כל המסלולים</option><option value="spoken">ערבית מדוברת פלסטינית</option><option value="formal">ערבית ספרותית</option></select></div><div id="listeningSummary" class="info-box"></div><div id="listeningArea"></div></div></section>
 <section id="view-favorites" class="hidden"><div class="panel"><h2>המילים המועדפות שלי</h2><p class="muted">כאן נשמרות מילים שסימנת כדי לחזור אליהן בקלות.</p><div id="favoritesArea"></div></div></section>
-<section id="view-settings" class="hidden"><div class="panel"><h2>הגדרות לימוד</h2><p class="muted">ההגדרות נשמרות במכשיר וניתן להעביר אותן באמצעות קובץ הגיבוי.</p><div class="enhance-grid"><div class="enhance-card"><h3>יעד חזרות יומי</h3><p>בחר כמה פריטי לימוד תרצה לתרגל בכל יום.</p><div class="field"><label for="dailyGoal">מספר חזרות ביום</label><select id="dailyGoal"><option value="5">5 פריטים</option><option value="10">10 פריטים</option><option value="15">15 פריטים</option><option value="20">20 פריטים</option><option value="30">30 פריטים</option></select></div></div><div class="enhance-card"><h3>מהירות שמע</h3><p>אפשר להאט את ההקראה או להאיץ אותה בלי לשנות את קובץ המקור.</p><div class="field"><label for="audioSpeedSettings">מהירות השמעה</label><select id="audioSpeedSettings"><option value="0.75">איטית – 0.75×</option><option value="1">רגילה – 1×</option><option value="1.25">מהירה – 1.25×</option><option value="1.5">מהירה מאוד – 1.5×</option></select></div></div></div><div class="info-box"><strong>גיבוי בין מכשירים</strong><p class="muted">כפתורי הגיבוי והשחזור שבחלק העליון מאפשרים להעביר את ההתקדמות, המועדפים והחזרות בין המחשב לטלפון.</p></div></div></section>
+<section id="view-settings" class="hidden"><div class="panel"><h2>הגדרות לימוד</h2><p class="muted">ההגדרות נשמרות במכשיר וניתן להעביר אותן באמצעות קובץ הגיבוי.</p><div class="enhance-grid"><div class="enhance-card"><h3>יעד חזרות יומי</h3><p>בחר כמה פריטי לימוד תרצה לתרגל בכל יום.</p><div class="field"><label for="dailyGoal">מספר חזרות ביום</label><select id="dailyGoal"><option value="5">5 פריטים</option><option value="10">10 פריטים</option><option value="15">15 פריטים</option><option value="20">20 פריטים</option><option value="30">30 פריטים</option></select></div></div><div class="enhance-card"><h3>מהירות שמע</h3><p>אפשר להאט את ההקראה או להאיץ אותה בלי לשנות את קובץ המקור.</p><div class="field"><label for="audioSpeedSettings">מהירות השמעה</label><select id="audioSpeedSettings"><option value="0.75">איטית – 0.75×</option><option value="1">רגילה – 1×</option><option value="1.25">מהירה – 1.25×</option><option value="1.5">מהירה מאוד – 1.5×</option></select></div></div><div class="enhance-card"><h3>גודל הכתב בערבית</h3><p>אפשר להגדיל או להקטין את הטקסט בערבית לשיפור הקריאות.</p><div class="field"><label for="arabicFontSize">גודל הכתב</label><select id="arabicFontSize"><option value="0.9">קטן</option><option value="1" selected>רגיל</option><option value="1.15">גדול</option><option value="1.3">גדול מאוד</option><option value="1.5">גדול במיוחד</option></select></div></div></div><div class="info-box"><strong>גיבוי בין מכשירים</strong><p class="muted">כפתורי הגיבוי והשחזור שבחלק העליון מאפשרים להעביר את ההתקדמות, המועדפים והחזרות בין המחשב לטלפון.</p></div></div></section>
 <section id="view-lesson" class="hidden"><div class="panel"><button class="secondary" id="backHome">← חזרה לשיעורים</button><div class="lesson-layout"><div><h2 id="lessonTitle"></h2><p class="muted" id="lessonDescription"></p><div class="info-box"><strong>מטרת השיעור: </strong><span id="lessonGoals"></span></div><div id="lessonContent"></div><div class="section-head"><h3>מבחן השיעור</h3><span id="quizCounter"></span></div><div class="progress-track"><div class="progress-fill" id="quizProgress"></div></div><div id="lessonQuiz"></div></div><aside><div class="info-box"><strong>איך ללמוד?</strong><p class="muted">קרא את המילה בערבית, אמור אותה בקול, בדוק את המשמעות ונסה להשתמש בה במשפט.</p></div><div class="info-box"><strong>טיפ</strong><p class="muted">התעתיק הוא עזר זמני בלבד. עם הזמן נסתמך יותר על הכתב הערבי ועל השמיעה.</p></div></aside></div></div></section>
 </main></div><div class="footer">StepUp Arabic · תכני הלימוד וההקלטות מתרחבים בהדרגה · שימוש מקומי</div></div>
 <audio id="audioPlayer" preload="none"></audio>
@@ -144,7 +144,7 @@ function normalizeState(x){
     finalExams:Array.isArray(x.finalExams)?x.finalExams.filter(e=>e&&typeof e==="object"&&Number.isFinite(Number(e.score))):[],
     correct:Number.isFinite(Number(x.correct))?Number(x.correct):0,
     answered:Number.isFinite(Number(x.answered))?Number(x.answered):0,
-    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{}),activeTrack:x.preferences&&x.preferences.activeTrack==="spoken"?"spoken":"formal",theme:x.preferences&&x.preferences.theme==="dark"?"dark":"light",dailyGoal:x.preferences&&[5,10,15,20,30].includes(Number(x.preferences.dailyGoal))?Number(x.preferences.dailyGoal):10,audioSpeed:x.preferences&&[0.75,1,1.25,1.5].includes(Number(x.preferences.audioSpeed))?Number(x.preferences.audioSpeed):1}
+    preferences:{...EMPTY.preferences,...(x.preferences&&typeof x.preferences==="object"?x.preferences:{}),activeTrack:x.preferences&&x.preferences.activeTrack==="spoken"?"spoken":"formal",theme:x.preferences&&x.preferences.theme==="dark"?"dark":"light",dailyGoal:x.preferences&&[5,10,15,20,30].includes(Number(x.preferences.dailyGoal))?Number(x.preferences.dailyGoal):10,audioSpeed:x.preferences&&[0.75,1,1.25,1.5].includes(Number(x.preferences.audioSpeed))?Number(x.preferences.audioSpeed):1,arabicFontSize:x.preferences&&[0.9,1,1.15,1.3,1.5].includes(Number(x.preferences.arabicFontSize))?Number(x.preferences.arabicFontSize):1}
   };
 }
 function loadState(){
@@ -180,9 +180,12 @@ function createBackupPayload(){
   return {app:"StepUp Arabic",schema:2,exportedAt:new Date().toISOString(),state:normalizeState(state)};
 }
 function restoreBackupPayload(data){
-  if(!data||typeof data!=="object"||Array.isArray(data))throw new Error("Invalid backup");
-  if(data.app&&data.app!=="StepUp Arabic")throw new Error("Wrong application");
-  return normalizeState(data.state||data);
+  if(!data||typeof data!=="object"||Array.isArray(data))throw new Error("מבנה הגיבוי פגום או חסר.");
+  const wrapped=Object.prototype.hasOwnProperty.call(data,"app")||Object.prototype.hasOwnProperty.call(data,"schema")||Object.prototype.hasOwnProperty.call(data,"state");
+  if(wrapped&&data.app!=="StepUp Arabic")throw new Error("הקובץ אינו גיבוי של StepUp Arabic.");
+  if(wrapped&&data.schema!==2)throw new Error("גרסת הגיבוי אינה נתמכת. יש לייצא גיבוי מהגרסה הנוכחית.");
+  if(wrapped&&(!Object.prototype.hasOwnProperty.call(data,"state")||!data.state||typeof data.state!=="object"||Array.isArray(data.state)))throw new Error("מבנה הגיבוי פגום או חסר.");
+  return normalizeState(wrapped?data.state:data);
 }
 function markStudy(){const day=new Date().toISOString().slice(0,10);if(!state.studyDates.includes(day))state.studyDates.push(day);save();}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
@@ -262,7 +265,7 @@ $("backHome").addEventListener("click",()=>{showView("home");renderLessons();});
 $("startFinalExam").addEventListener("click",startFinalExam);
 $("backupBtn").addEventListener("click",async()=>{save();const data=createBackupPayload();const json=JSON.stringify(data,null,2);if(typeof window.StepUpNativeSaveFile==="function"){try{const path=await window.StepUpNativeSaveFile("StepUp-Arabic-backup.json",json);alert("הגיבוי נשמר בהצלחה בתיקייה:\n"+path);}catch(err){console.error("Native backup export failed",err);alert("שמירת קובץ הגיבוי נכשלה. אפשר לנסות שוב.");}return;}const blob=new Blob([json],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="StepUp-Arabic-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);});
 $("restoreBtn").addEventListener("click",()=>$("restoreFile").click());
-$("restoreFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const incoming=restoreBackupPayload(JSON.parse(await f.text()));if(!confirm("שחזור הגיבוי יחליף את ההתקדמות השמורה במכשיר הזה. מומלץ לייצא גיבוי של המצב הנוכחי לפני ההחלפה. להמשיך?"))return;state=incoming;activeTrack=state.preferences.activeTrack||"formal";save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();renderMistakes();alert("הגיבוי שוחזר ונשמר בהצלחה.");}catch(err){alert("קובץ הגיבוי אינו תקין או שאינו תואם לתוכנה זו.");}finally{e.target.value="";}});
+$("restoreFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const incoming=restoreBackupPayload(JSON.parse(await f.text()));if(!confirm("שחזור הגיבוי יחליף את ההתקדמות השמורה במכשיר הזה. מומלץ לייצא גיבוי של המצב הנוכחי לפני ההחלפה. להמשיך?"))return;state=incoming;activeTrack=state.preferences.activeTrack||"formal";save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();renderMistakes();alert("הגיבוי שוחזר ונשמר בהצלחה.");}catch(err){alert(err instanceof SyntaxError?"קובץ הגיבוי אינו JSON תקין.":(err&&err.message?err.message:"טעינת הגיבוי נכשלה."));}finally{e.target.value="";}});
 window.__stepUpSmokeTest={run:function(){const restored=state.completed.includes("ms-a1")&&state.preferences.activeTrack==="spoken";if(!restored){if(!state.completed.includes("ms-a1"))state.completed.push("ms-a1");state.preferences.activeTrack="spoken";activeTrack="spoken";}let direct=false;try{direct=window.StepUpNative&&typeof window.StepUpNative.saveProgress==="function"&&window.StepUpNative.saveProgress(JSON.stringify(state))===true;}catch(error){console.error("Direct native persistence test failed",error);}const saved=direct;return {restored,saved,direct};}};
 renderLessons();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLetters();renderWordList("spokenWords","spoken");renderWordList("formalWords","formal");renderMistakes();updateStats();$("saveStatus").textContent=state.lastSavedAt?"שמירה מקומית נטענה":"שמירה אוטומטית פעילה";window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save();});
 
@@ -284,6 +287,7 @@ function ensureUpgradeState(){
   if(!state.preferences)state.preferences={};
   if(!state.preferences.dailyGoal)state.preferences.dailyGoal=10;
   if(!state.preferences.audioSpeed)state.preferences.audioSpeed=1;
+  if(!state.preferences.arabicFontSize)state.preferences.arabicFontSize=1;
   if(!state.preferences.theme)state.preferences.theme="light";
 }
 function upgradeRecords(){
@@ -369,18 +373,23 @@ function renderUpgradeStats(){
   }
   renderActivity();
 }
+function applyArabicFontSize(){
+  const allowed=[0.9,1,1.15,1.3,1.5],size=Number(state.preferences.arabicFontSize||1);
+  document.documentElement.style.setProperty("--arabic-font-scale",String(allowed.includes(size)?size:1));
+}
 function applyTheme(){
   const dark=state.preferences.theme==="dark";document.documentElement.setAttribute("data-theme",dark?"dark":"light");
   const toggle=$("themeToggle");if(toggle)toggle.textContent=dark?"☀️ מצב בהיר":"🌙 מצב כהה";
 }
 function syncUpgradeSettings(){
-  const goal=$("dailyGoal"),speed=$("audioSpeed"),speed2=$("audioSpeedSettings");
+  const goal=$("dailyGoal"),speed=$("audioSpeed"),speed2=$("audioSpeedSettings"),fontSize=$("arabicFontSize");
   if(goal)goal.value=String(state.preferences.dailyGoal||10);
   if(speed)speed.value=String(state.preferences.audioSpeed||1);
   if(speed2)speed2.value=String(state.preferences.audioSpeed||1);
+  if(fontSize)fontSize.value=String(state.preferences.arabicFontSize||1);
 }
 ensureUpgradeState();
-applyTheme();syncUpgradeSettings();renderFavorites();renderDictionary("");renderReview();renderUpgradeStats();
+applyArabicFontSize();applyTheme();syncUpgradeSettings();renderFavorites();renderDictionary("");renderReview();renderUpgradeStats();
 const previousUpdateStats=updateStats;
 updateStats=function(){previousUpdateStats();renderUpgradeStats();};
 document.addEventListener("click",function(event){
@@ -412,4 +421,5 @@ const themeToggle=$("themeToggle");if(themeToggle)themeToggle.addEventListener("
 const speed=$("audioSpeed"),speed2=$("audioSpeedSettings");if(speed)speed.addEventListener("change",function(){state.preferences.audioSpeed=Number(speed.value);if(speed2)speed2.value=speed.value;save();});
 if(speed2)speed2.addEventListener("change",function(){state.preferences.audioSpeed=Number(speed2.value);if(speed)speed.value=speed2.value;save();});
 const daily=$("dailyGoal");if(daily)daily.addEventListener("change",function(){state.preferences.dailyGoal=Number(daily.value);save();renderReview();});
+const arabicSize=$("arabicFontSize");if(arabicSize)arabicSize.addEventListener("change",function(){state.preferences.arabicFontSize=Number(arabicSize.value);applyArabicFontSize();save();});
 </script></body></html>
