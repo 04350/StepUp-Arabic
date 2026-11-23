@@ -264,4 +264,138 @@ $("restoreBtn").addEventListener("click",()=>$("restoreFile").click());
 $("restoreFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const incoming=restoreBackupPayload(JSON.parse(await f.text()));if(!confirm("שחזור הגיבוי יחליף את ההתקדמות השמורה במכשיר הזה. מומלץ לייצא גיבוי של המצב הנוכחי לפני ההחלפה. להמשיך?"))return;state=incoming;activeTrack=state.preferences.activeTrack||"formal";save();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLessons();renderMistakes();alert("הגיבוי שוחזר ונשמר בהצלחה.");}catch(err){alert("קובץ הגיבוי אינו תקין או שאינו תואם לתוכנה זו.");}finally{e.target.value="";}});
 window.__stepUpSmokeTest={run:function(){const restored=state.completed.includes("ms-a1")&&state.preferences.activeTrack==="spoken";if(!restored){if(!state.completed.includes("ms-a1"))state.completed.push("ms-a1");state.preferences.activeTrack="spoken";activeTrack="spoken";}let direct=false;try{direct=window.StepUpNative&&typeof window.StepUpNative.saveProgress==="function"&&window.StepUpNative.saveProgress(JSON.stringify(state))===true;}catch(error){console.error("Direct native persistence test failed",error);}const saved=direct;return {restored,saved,direct};}};
 renderLessons();document.querySelectorAll(".track-btn").forEach(x=>x.classList.toggle("selected",x.dataset.track===activeTrack));renderLetters();renderWordList("spokenWords","spoken");renderWordList("formalWords","formal");renderMistakes();updateStats();$("saveStatus").textContent=state.lastSavedAt?"שמירה מקומית נטענה":"שמירה אוטומטית פעילה";window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save();});
+
+/* StepUp Arabic 2.0: local dictionary, favorites, spaced repetition, preferences and analytics. */
+function ensureUpgradeState(){
+  if(!Array.isArray(state.favorites))state.favorites=[];
+  if(!state.reviewStats||typeof state.reviewStats!=="object")state.reviewStats={};
+  if(!state.preferences)state.preferences={};
+  if(!state.preferences.dailyGoal)state.preferences.dailyGoal=10;
+  if(!state.preferences.audioSpeed)state.preferences.audioSpeed=1;
+  if(!state.preferences.theme)state.preferences.theme="light";
+}
+function upgradeRecords(){
+  const records=[];
+  ALL_LESSONS.forEach(function(lesson){
+    lesson.words.forEach(function(word,index){
+      records.push({key:lesson.id+"|"+word[0],lesson:lesson,word:word,index:index,file:word[4]||("generated/"+lesson.id+"-"+String(index+1).padStart(2,"0")+".wav"),kind:"word"});
+    });
+    (lesson.examples||[]).forEach(function(example,index){
+      records.push({key:lesson.id+"|"+example[0],lesson:lesson,word:[example[0],example[1],"","משפט לדוגמה"],index:index,file:"generated/"+lesson.id+"-example-"+String(index+1).padStart(2,"0")+".wav",kind:"example"});
+    });
+  });
+  return records;
+}
+function localDayKey(date){
+  const d=date||new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function stripSearchMarks(value){
+  return String(value||"").toLowerCase().replace(/[\u064B-\u065F\u0670]/g,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+}
+function favoriteButtonFor(key){
+  const selected=state.favorites.indexOf(key)>=0;
+  return '<button class="favorite-btn" type="button" data-favorite="'+encodeURIComponent(key)+'" aria-label="מועדף" aria-pressed="'+(selected?"true":"false")+'">'+(selected?"★":"☆")+'</button>';
+}
+function recordCard(record){
+  return '<div class="word-card"><div><div class="word-ar" lang="ar" dir="rtl">'+record.word[0]+'</div><div class="word-he">'+record.word[1]+'</div><div class="word-note">'+trackName(record.lesson.track)+' · '+record.lesson.title+'</div></div><div class="word-actions"><button class="audio" type="button" data-audio="'+record.file+'">▶ האזנה</button>'+favoriteButtonFor(record.key)+'</div></div>';
+}
+function renderFavorites(){
+  const target=$("favoritesArea");if(!target)return;
+  const all=upgradeRecords(),selected=state.favorites.map(function(key){return all.find(function(r){return r.key===key;});}).filter(Boolean);
+  target.innerHTML=selected.length?selected.map(recordCard).join(""):'<div class="info-box">עדיין לא סימנת מילים כמועדפות. אפשר ללחוץ על ☆ ליד כל מילה בשיעור או במילון.</div>';
+}
+function renderDictionary(query){
+  const target=$("dictionaryResults");if(!target)return;
+  const term=stripSearchMarks(query||"");
+  if(!term){target.innerHTML='<div class="info-box">התחל להקליד בעברית, בערבית או בתעתיק כדי לחפש במאגר המילים.</div>';return;}
+  const results=upgradeRecords().filter(function(r){if(r.kind!=="word")return false;const text=stripSearchMarks(r.word.slice(0,4).join(" "));return text.indexOf(term)>=0;}).slice(0,60);
+  target.innerHTML=results.length?'<div class="muted" style="font-size:12px;margin-bottom:8px">נמצאו '+results.length+' תוצאות'+(results.length===60?' (מוצגות עד 60)':'')+'</div>'+results.map(recordCard).join(""):'<div class="info-box">לא נמצאו מילים מתאימות. נסה כתיב אחר או חיפוש קצר יותר.</div>';
+}
+function renderReview(){
+  const area=$("reviewArea"),summary=$("reviewSummary");if(!area||!summary)return;
+  const now=Date.now(),all=upgradeRecords(),queue=all.filter(function(r){const item=state.reviewStats[r.key];return item&&Number(item.dueAt||0)<=now;});
+  queue.sort(function(a,b){const am=state.mistakes[a.key]?1:0,bm=state.mistakes[b.key]?1:0;if(am!==bm)return bm-am;return Number(state.reviewStats[a.key].dueAt||0)-Number(state.reviewStats[b.key].dueAt||0);});
+  const today=localDayKey(),done=Object.keys(state.reviewStats).filter(function(key){return state.reviewStats[key]&&state.reviewStats[key].lastReviewedAt&&localDayKey(new Date(state.reviewStats[key].lastReviewedAt))===today;}).length;
+  const goal=Number(state.preferences.dailyGoal||10);
+  summary.innerHTML='<strong>היום תרגלת '+done+' מתוך '+goal+' פריטים.</strong><div class="daily-progress"><span style="width:'+Math.min(100,Math.round(done/goal*100))+'%"></span></div><span class="muted">ממתינים לחזרה: '+queue.length+' · מילים מועדפות: '+state.favorites.length+'</span>';
+  if(!queue.length){area.innerHTML='<div class="info-box">אין כרגע חזרות שהגיע זמנן. המשך ללמוד שיעורים חדשים, והמערכת תוסיף מילים לחזרה בהתאם לתשובות שלך.</div>';return;}
+  area.innerHTML=queue.slice(0,20).map(function(r){
+    const item=state.reviewStats[r.key],mistake=state.mistakes[r.key]?' · נדרשת תשומת לב':'';
+    return '<div class="enhance-card" style="margin:10px 0"><div class="word-ar" lang="ar" dir="rtl">'+r.word[0]+'</div><div class="word-note">'+trackName(r.lesson.track)+' · '+r.lesson.title+mistake+'</div><details style="margin:9px 0"><summary style="cursor:pointer;font-weight:700">הצג תרגום ותשובה</summary><p>'+r.word[1]+'</p><p class="muted">'+r.word[2]+'</p></details><div class="word-actions"><button class="audio" type="button" data-audio="'+r.file+'">▶ האזנה</button><button class="review-grade" data-review-grade="again" data-review-key="'+encodeURIComponent(r.key)+'">שוב בקרוב</button><button class="review-grade" data-review-grade="hard" data-review-key="'+encodeURIComponent(r.key)+'">קשה</button><button class="review-grade" data-review-grade="good" data-review-key="'+encodeURIComponent(r.key)+'">טוב</button><button class="review-grade" data-review-grade="easy" data-review-key="'+encodeURIComponent(r.key)+'">קל</button></div><small class="muted">חזרות קודמות: '+Number(item.repetitions||0)+'</small></div>';
+  }).join("");
+}
+function applyReviewGrade(key,grade){
+  const now=Date.now(),old=state.reviewStats[key]||{},days={again:0,hard:1,good:3,easy:7},interval=days[grade];
+  const dueAt=interval===0?now+10*60*1000:now+interval*86400000;
+  state.reviewStats[key]={repetitions:grade==="again"?0:Number(old.repetitions||0)+1,intervalDays:interval,ease:grade==="easy"?2.8:(grade==="hard"?2.1:2.5),lastReviewedAt:new Date(now).toISOString(),dueAt:dueAt};
+  save();renderReview();renderUpgradeStats();
+}
+function scheduleAnsweredQuestion(question,correct){
+  if(!question||!question.lesson||!question.word||!question.word[0])return;
+  const key=question.lesson.id+"|"+question.word[0],old=state.reviewStats[key]||{},previous=Number(old.intervalDays||0);
+  let repetitions=Number(old.repetitions||0),days=0,dueAt;
+  if(correct){repetitions++;days=repetitions===1?1:(repetitions===2?3:Math.min(90,Math.max(4,Math.round(previous*2.2))));dueAt=Date.now()+days*86400000;}
+  else{repetitions=0;dueAt=Date.now()+10*60*1000;}
+  state.reviewStats[key]={repetitions:repetitions,intervalDays:days,ease:Number(old.ease||2.5),lastReviewedAt:new Date().toISOString(),dueAt:dueAt};
+  save();
+}
+function renderActivity(){
+  const target=$("activityChart");if(!target)return;
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({key:localDayKey(d),label:d.toLocaleDateString("he-IL",{weekday:"short"}),count:0});}
+  Object.keys(state.reviewStats).forEach(function(key){const item=state.reviewStats[key];if(!item||!item.lastReviewedAt)return;const day=localDayKey(new Date(item.lastReviewedAt)),slot=days.find(function(x){return x.key===day;});if(slot)slot.count++;});
+  const max=Math.max(1,...days.map(function(x){return x.count;}));
+  target.innerHTML=days.map(function(day){return '<div class="activity-day" title="'+day.count+' חזרות"><span>'+day.count+'</span><i style="height:'+Math.max(3,Math.round(day.count/max*72))+'px"></i><span>'+day.label+'</span></div>';}).join("");
+}
+function renderUpgradeStats(){
+  const panel=$("dailyGoalPanel"),today=localDayKey(),done=Object.keys(state.reviewStats).filter(function(key){const x=state.reviewStats[key];return x&&x.lastReviewedAt&&localDayKey(new Date(x.lastReviewedAt))===today;}).length,goal=Number(state.preferences.dailyGoal||10);
+  if(panel)panel.innerHTML='<strong>יעד הלמידה היומי</strong><div class="daily-progress"><span style="width:'+Math.min(100,Math.round(done/goal*100))+'%"></span></div><span class="muted">'+done+' מתוך '+goal+' פריטי חזרה · '+state.favorites.length+' מועדפים · '+Object.keys(state.reviewStats).length+' פריטים במעקב</span> <button class="secondary" type="button" data-open-review>התחל חזרה</button>';
+  const achievements=$("achievementPanel");
+  if(achievements){
+    const items=[{name:"צעד ראשון",desc:"השלמת שיעור ראשון",ok:state.completed.length>=1},{name:"לומד עקבי",desc:"השלמת 10 שיעורים",ok:state.completed.length>=10},{name:"חוקר מילים",desc:"שמירת 10 מילים מועדפות",ok:state.favorites.length>=10},{name:"מתרגל חכם",desc:"מעקב אחר 20 פריטי לימוד",ok:Object.keys(state.reviewStats).length>=20}];
+    achievements.innerHTML=items.map(function(x){return '<div class="enhance-card"><strong>'+(x.ok?'🏅 ':'🔒 ')+x.name+'</strong><p>'+x.desc+'</p></div>';}).join("");
+  }
+  renderActivity();
+}
+function applyTheme(){
+  const dark=state.preferences.theme==="dark";document.documentElement.setAttribute("data-theme",dark?"dark":"light");
+  const toggle=$("themeToggle");if(toggle)toggle.textContent=dark?"☀️ מצב בהיר":"🌙 מצב כהה";
+}
+function syncUpgradeSettings(){
+  const goal=$("dailyGoal"),speed=$("audioSpeed"),speed2=$("audioSpeedSettings");
+  if(goal)goal.value=String(state.preferences.dailyGoal||10);
+  if(speed)speed.value=String(state.preferences.audioSpeed||1);
+  if(speed2)speed2.value=String(state.preferences.audioSpeed||1);
+}
+ensureUpgradeState();
+applyTheme();syncUpgradeSettings();renderFavorites();renderDictionary("");renderReview();renderUpgradeStats();
+const previousUpdateStats=updateStats;
+updateStats=function(){previousUpdateStats();renderUpgradeStats();};
+document.addEventListener("click",function(event){
+  const fav=event.target.closest("[data-favorite]");
+  if(fav){const key=decodeURIComponent(fav.getAttribute("data-favorite"));const index=state.favorites.indexOf(key);if(index>=0)state.favorites.splice(index,1);else state.favorites.push(key);save();renderFavorites();const q=$("dictionarySearch");if(q)renderDictionary(q.value);return;}
+  const grade=event.target.closest("[data-review-grade]");
+  if(grade){applyReviewGrade(decodeURIComponent(grade.getAttribute("data-review-key")),grade.getAttribute("data-review-grade"));return;}
+  const open=event.target.closest("[data-open-review]");
+  if(open){showView("review");renderReview();return;}
+});
+document.addEventListener("click",function(event){
+  const option=event.target.closest("[data-option],[data-final]");
+  if(!option||!quiz||!quiz.questions||!quiz.questions[quiz.index])return;
+  const current=quiz.questions[quiz.index],index=Number(option.getAttribute("data-option")!==null?option.getAttribute("data-option"):option.getAttribute("data-final"));
+  const correct=current.options[index]===current.answer;
+  Promise.resolve().then(function(){scheduleAnsweredQuestion(current,correct);});
+},true);
+document.querySelectorAll(".nav").forEach(function(button){
+  const view=button.getAttribute("data-view");
+  if(view==="review")button.addEventListener("click",renderReview);
+  if(view==="favorites")button.addEventListener("click",renderFavorites);
+  if(view==="dictionary")button.addEventListener("click",function(){renderDictionary($("dictionarySearch").value);});
+  if(view==="settings")button.addEventListener("click",syncUpgradeSettings);
+});
+const search=$("dictionarySearch");if(search)search.addEventListener("input",function(){renderDictionary(search.value);});
+const themeToggle=$("themeToggle");if(themeToggle)themeToggle.addEventListener("click",function(){state.preferences.theme=state.preferences.theme==="dark"?"light":"dark";applyTheme();save();});
+const speed=$("audioSpeed"),speed2=$("audioSpeedSettings");if(speed)speed.addEventListener("change",function(){state.preferences.audioSpeed=Number(speed.value);if(speed2)speed2.value=speed.value;save();});
+if(speed2)speed2.addEventListener("change",function(){state.preferences.audioSpeed=Number(speed2.value);if(speed)speed.value=speed2.value;save();});
+const daily=$("dailyGoal");if(daily)daily.addEventListener("change",function(){state.preferences.dailyGoal=Number(daily.value);save();renderReview();});
 </script></body></html>
