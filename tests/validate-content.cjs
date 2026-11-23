@@ -120,7 +120,7 @@ assert(html.includes('data-view="review"') && html.includes('data-view="dictiona
 assert(html.includes("function scheduleAnsweredQuestion") && html.includes("function applyReviewGrade"), "Spaced repetition scheduling and rating actions are missing");
 assert(html.includes("audioSpeedSettings") && html.includes("themeToggle") && html.includes("dailyGoal"), "Learning settings for playback speed, theme and daily goal are missing");
 assert(html.includes("achievementPanel") && html.includes("activityChart"), "Progress achievements and weekly activity chart are missing");
-assert(html.includes("level":"מתקדמים"), "Advanced lesson levels must be present");
+assert(html.includes('"level":"מתקדמים"'), "Advanced lesson levels must be present");
 assert(html.includes("const listening=questionBank.filter(q=>q.audio)"), "Final exam must include the listening questions from completed lessons");
 assert(html.includes('id="view-guide"') && html.includes("ערבית ספרותית מודרנית (MSA)"), "Arabic varieties guide is missing");
 assert(html.includes("ערבית לבנטינית") && html.includes("ערבית מדוברת פלסטינית"), "Guide must explain Levantine and Palestinian Arabic");
