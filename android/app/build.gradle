@@ -3,6 +3,14 @@ plugins {
     id "org.jetbrains.kotlin.android"
 }
 
+def stableKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+def stableStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+def stableKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+def stableKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+def hasStableSigning = [stableKeystorePath, stableStorePassword, stableKeyAlias, stableKeyPassword].every { value ->
+    value != null && !value.trim().isEmpty()
+}
+
 android {
     namespace "com.stepuparabic.app"
     compileSdk 35
@@ -24,10 +32,32 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        if (hasStableSigning) {
+            stableRelease {
+                storeFile file(stableKeystorePath)
+                storePassword stableStorePassword
+                keyAlias stableKeyAlias
+                keyPassword stableKeyPassword
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            // Pull-request test APKs use Android's debug key. Main-branch builds
+            // switch to the persistent key so future APK updates keep the same signer.
+            if (hasStableSigning) {
+                signingConfig signingConfigs.stableRelease
+            }
+        }
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            if (hasStableSigning) {
+                signingConfig signingConfigs.stableRelease
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
     }
 }
