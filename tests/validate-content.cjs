@@ -29,7 +29,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 404,  "Expected at least 404 learning entries including five audio phrase test fixtures; found " + vocabCount);
+assert(vocabCount >= 404,  "Expected at least 404 learning entries including five bundled listening phrases; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
