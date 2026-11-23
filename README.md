@@ -87,6 +87,6 @@ keytool -genkeypair -v -keystore stepup-arabic-release.jks -storetype JKS -keyal
 
 ## התקנה
 - **Windows:** הורידו את StepUp-Arabic.exe והפעילו. נדרש Microsoft Edge WebView2 Runtime; הוא כלול ב-Windows 11 וברוב מחשבי Windows 10. אם הוא חסר, יש להתקין אותו פעם אחת. קובץ ה-EXE אינו חתום דיגיטלית, ולכן Windows עשוי להציג אזהרת SmartScreen.
-- **Android:** הורידו את StepUp-Arabic-v2.0.0.apk ופתחו אותו להתקנה ידנית. נדרש Android 6.0 ומעלה. ה-APK חתום בחתימת debug לצורך התקנה ידנית, ולא בחתימת הפצה של Google Play.
+- **Android:** הורידו את StepUp-Arabic-v2.0.0.apk ופתחו אותו להתקנה ידנית. נדרש Android 6.0 ומעלה. APK של בדיקות PR חתום בחתימת debug; APK רשמי מענף `main` נחתם במפתח הקבוע שהוגדר ב-GitHub Secrets. אין מדובר בפרסום דרך Google Play.
 
 הורדות רשמיות: https://github.com/04350/StepUp-Arabic/releases/tag/v2.0.0
