@@ -13,7 +13,14 @@ const key = html.match(/const KEY="([^"]+)"/)?.[1];
 const emptyText = html.match(/const EMPTY=(\{[^\n]+\});/)?.[1];
 assert(key && emptyText, "Storage key or empty state is missing");
 const empty = vm.runInNewContext("(" + emptyText + ")");
-const functions = ["normalizeState", "loadState", "save", "createBackupPayload", "restoreBackupPayload"].map(extractFunction).join("\n");
+const curriculumMatch = html.match(/const CURRICULUM = (\\{[\\s\\S]*?\\});[\\s\\S]*?const LETTERS=/);
+assert(curriculumMatch, "Curriculum is required for backup validation tests");
+const curriculum = JSON.parse(curriculumMatch[1]);
+const allLessons = [
+  ...curriculum.spoken.map(lesson => ({ ...lesson, track: "spoken" })),
+  ...curriculum.formal.map(lesson => ({ ...lesson, track: "formal" }))
+];
+const functions = ["normalizeState", "loadState", "save", "createBackupPayload", "validateBackupState", "restoreBackupPayload"].map(extractFunction).join("\\n");
 
 function makeContext({ localStorage, nativeStore }) {
   const window = {
@@ -33,6 +40,7 @@ function makeContext({ localStorage, nativeStore }) {
   vm.runInContext(
     "const KEY=" + JSON.stringify(key) + ";\n" +
     "const EMPTY=" + JSON.stringify(empty) + ";\n" +
+    "const ALL_LESSONS=" + JSON.stringify(allLessons) + ";\n" +
     functions + "\n" +
     "let state=loadState();\n" +
     "globalThis.readState=()=>state;\n" +
