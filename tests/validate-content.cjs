@@ -14,11 +14,6 @@ assert(curriculum.formal.filter(x => x.kind === "sound").length >= 3, "Short vow
 assert(curriculum.formal.some(x => x.id === "ms-a9" && x.kind === "reading"), "Beginner reading lesson is missing");
 assert(html.includes('activeTrack="formal"'), "A brand-new learner should begin in the alphabet/reading track");
 assert(html.includes('data-retry="'), "Mistake review must link back to the original lesson");
-curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
-curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
-curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي ذَاتِ يَوْمٍ","יום אחד","fī dhāti yawmin","משפט קצר להאזנה","msa-one-day.wav"]);
-curriculum.formal.find(x => x.id === "ms-07").words.push(["عَلَى كَوْكَبٍ بَعِيدٍ","על כוכב רחוק","ʿalā kawkabin baʿīdin","משפט קצר להאזנה","msa-on-distant-planet.wav"]);
-curriculum.formal.find(x => x.id === "ms-12").words.push(["طَعَامُهُمْ وَاحِدٌ","האוכל שלהם זהה","ṭaʿāmuhum wāḥidun","משפט קצר להאזנה","msa-their-food-is-the-same.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
 const ids = new Set();
 let vocabCount = 0;
