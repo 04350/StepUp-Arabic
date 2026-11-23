@@ -19,6 +19,25 @@ Model: https://huggingface.co/hamdallah/Sofelia-TTS
 - This is not a ready-made multiple-speaker model: every additional voice needs a properly licensed reference recording and separate validation.
 - It is not used in the normal build because the current CI is CPU-based and the project does not yet have multiple voice-reference recordings with explicit permissions for voice cloning.
 
+### Sofelia Palestinian multi-speaker training checkpoint
+
+Repository: https://huggingface.co/hamdallah/sofelia-tts-checkpoints
+
+- Apache-2.0 license and a documented multi-speaker Stage-2 checkpoint described as Kore + Sirin.
+- The checkpoint file is approximately 1.82 GB and is a raw training-state checkpoint, not a ready-to-load Kokoro inference model.
+- The repository's extraction script derives a speaker voicepack from representative WAV files for each speaker. Those source speaker recordings / separate voicepacks are not included in the repository's public file listing.
+- This is the most relevant Palestinian multi-speaker lead, but it cannot yet produce two verified voices without correctly matched, authorized reference WAVs and a checkpoint-conversion / voicepack extraction test.
+- It is not bundled into the app or normal build while those prerequisites are missing.
+
+### Level TTS Arabic
+
+Model: https://huggingface.co/gijl/level-tts-ar
+
+- The model card advertises dialect code `ps` for Palestinian Arabic and zero-shot voice cloning.
+- The repository is approximately 7.84 GB and includes an inference checkpoint of around 871 MB plus a much larger training checkpoint.
+- No declared license is displayed on the model card. It is therefore not eligible for redistribution in StepUp Arabic unless the author provides a suitable license.
+- Not included in the production app.
+
 ### A3S
 
 Model: https://huggingface.co/MahmoudIbrahim/A3S
