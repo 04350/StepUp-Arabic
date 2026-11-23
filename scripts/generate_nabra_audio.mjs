@@ -75,6 +75,12 @@ try {
       const filename = lesson.id + "-" + String(i + 1).padStart(2, "0") + ".wav";
       await writeSpeech(text, filename, lesson.id, "vocabulary");
     }
+    for (let i = 0; i < (lesson.examples || []).length; i++) {
+      const example = lesson.examples[i];
+      const filename = lesson.id + "-example-" + String(i + 1).padStart(2, "0") + ".wav";
+      await writeSpeech(example[0], filename, lesson.id, "example-sentence");
+      generated[generated.length - 1].translation = example[1];
+    }
   }
   for (let i = 0; i < letterNames.length; i++) {
     const filename = "letter-" + String(i + 1).padStart(2, "0") + ".wav";
