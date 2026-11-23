@@ -48,8 +48,8 @@ def verify_wav(path: Path, label: str, sample_rate: int = 24000) -> None:
 
 curriculum = load_json(r"const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=", "curriculum")
 letters = load_json(r"const LETTERS=(\[[\s\S]*?\]);\s*const KEY=", "Arabic alphabet")
-require(len(curriculum["spoken"]) == 20, "Expected 20 Palestinian Arabic lessons")
-require(len(curriculum["formal"]) == 29, "Expected 29 MSA lessons")
+require(len(curriculum["spoken"]) == 24, "Expected 24 Palestinian Arabic lessons")
+require(len(curriculum["formal"]) == 33, "Expected 33 MSA lessons")
 require(len(letters) == 28, "Expected 28 Arabic letters")
 
 expected_spoken = 0
