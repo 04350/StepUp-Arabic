@@ -110,7 +110,7 @@ for (const lesson of all) {
   }
 }
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
-assert(html.includes('generated/'+l.id+'-example-'+String(i+1).padStart(2,"0")+'.wav'), "Every lesson example must have its own bundled WAV file");
+assert(/generated\/['"]?\s*\+\s*l\.id\s*\+\s*['"]-example-/.test(html) && html.includes("function examplesMarkup(l)"), "Every lesson example must have its own bundled WAV player");
 assert(html.includes('data-view="review"') && html.includes('data-view="dictionary"') && html.includes('data-view="favorites"'), "Review, dictionary and favorites views must be available");
 assert(html.includes("function scheduleAnsweredQuestion") && html.includes("function applyReviewGrade"), "Spaced repetition scheduling and rating actions are missing");
 assert(html.includes("audioSpeedSettings") && html.includes("themeToggle") && html.includes("dailyGoal"), "Learning settings for playback speed, theme and daily goal are missing");
