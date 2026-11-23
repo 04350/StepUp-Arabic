@@ -7,8 +7,8 @@ assert(!/\?\?/.test(html), "Nullish coalescing is not supported by the minimum A
 const match = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=/);
 assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
-assert(curriculum.spoken.length === 24, "Expected exactly 20 spoken lessons");
-assert(curriculum.formal.length === 33, "Expected exactly 29 formal lessons");
+assert(curriculum.spoken.length === 24, "Expected exactly 24 spoken lessons");
+assert(curriculum.formal.length === 33, "Expected exactly 33 formal lessons");
 assert(curriculum.formal.slice(0,4).every(x => x.kind === "alphabet"), "The MSA track must begin with four alphabet units");
 assert(curriculum.formal.filter(x => x.kind === "sound").length >= 3, "Short vowels, sukun/shadda and long vowels must be taught in sound units");
 assert(curriculum.formal.some(x => x.id === "ms-a9" && x.kind === "reading"), "Beginner reading lesson is missing");
@@ -34,7 +34,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 404, "Expected at least 345 learning entries including two audio phrases; found " + vocabCount);
+assert(vocabCount >= 404,  "Expected at least 404 learning entries including five audio phrase test fixtures; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
@@ -90,9 +90,9 @@ const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].fi
 assert(scripts.length, "No inline application script found");
 scripts.forEach((m, i) => new vm.Script(m[2].replace(/const CURRICULUM = \{[\s\S]*?\};/, "const CURRICULUM = {};"), { filename: "inline-" + (i + 1) + ".js" }));
 const exampleCount = all.filter(x => Array.isArray(x.examples) && x.examples.length).length;
-assert(exampleCount === 49, "Every lesson must contain at least one example sentence");
+assert(exampleCount === 57, "Every lesson must contain at least one example sentence");
 const teachingCount = all.filter(x => typeof x.teaching === "string" && x.teaching.trim()).length;
-assert(teachingCount === 49, "Every lesson must contain a teaching explanation");
+assert(teachingCount === 57, "Every lesson must contain a teaching explanation");
 const bankStart = html.indexOf("function makeQuestionBank(l){");
 const bankEnd = html.indexOf("\nfunction teachingMarkup(l)", bankStart);
 assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
@@ -115,7 +115,7 @@ for (const lesson of all) {
   }
 }
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
-assert(html.includes('generated/"+l.id+"-example-"+String(i+1).padStart(2,"0")+".wav'), "Every lesson example must have its own bundled WAV file");
+assert(html.includes('generated/'+l.id+'-example-'+String(i+1).padStart(2,"0")+'.wav'), "Every lesson example must have its own bundled WAV file");
 assert(html.includes('data-view="review"') && html.includes('data-view="dictionary"') && html.includes('data-view="favorites"'), "Review, dictionary and favorites views must be available");
 assert(html.includes("function scheduleAnsweredQuestion") && html.includes("function applyReviewGrade"), "Spaced repetition scheduling and rating actions are missing");
 assert(html.includes("audioSpeedSettings") && html.includes("themeToggle") && html.includes("dailyGoal"), "Learning settings for playback speed, theme and daily goal are missing");
@@ -142,4 +142,4 @@ assert(html.includes("window.StepUpNativeSaveFile") && html.includes("StepUp-Ara
 assert(desktopMain.includes('w.Bind("StepUpNativeSaveFile"'), "Windows must expose a native backup file writer");
 assert(desktopMain.includes('filepath.Join(home, "Downloads", "StepUp Arabic")'), "Windows backups must be stored in the user Downloads folder");
 assert(desktopMain.includes("json.Valid([]byte(content))"), "Windows backup writer must validate JSON before writing");
-console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item plus 1 for each human audio clip", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
+console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item, plus listening questions and one per example sentence", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
