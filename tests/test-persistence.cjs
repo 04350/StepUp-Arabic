@@ -94,6 +94,21 @@ assert.throws(() => browserContext.restoreBackupPayload({ app: "Different App", 
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 99, state: {} }), /גרסת הגיבוי/);
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2, state: [] }), /מבנה הגיבוי/);
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2 }), /מבנה הגיבוי/);
+
+const validEnvelope = JSON.parse(JSON.stringify(browserContext.createBackupPayload()));
+const badCompleted = JSON.parse(JSON.stringify(validEnvelope));
+badCompleted.state.completed = ["lesson-does-not-exist"];
+assert.throws(() => browserContext.restoreBackupPayload(badCompleted), /מזהה שיעור לא מוכר/);
+const badScores = JSON.parse(JSON.stringify(validEnvelope));
+badScores.state.scores = {"ms-a1": 140};
+assert.throws(() => browserContext.restoreBackupPayload(badScores), /ציון לא תקין/);
+const badFavorites = JSON.parse(JSON.stringify(validEnvelope));
+badFavorites.state.favorites = ["not-a-real-lesson|word"];
+assert.throws(() => browserContext.restoreBackupPayload(badFavorites), /מועדף שאינו קיים/);
+const missingRequired = JSON.parse(JSON.stringify(validEnvelope));
+delete missingRequired.state.reviewStats;
+assert.throws(() => browserContext.restoreBackupPayload(missingRequired), /חסר שדה חובה/);
+
 assert.throws(() => browserContext.restoreBackupPayload(null), /מבנה הגיבוי/);
 
 // If WebView localStorage is unavailable, Android's private progress file is the fallback.
