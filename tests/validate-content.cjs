@@ -97,7 +97,7 @@ const bankStart = html.indexOf("function makeQuestionBank(l){");
 const bankEnd = html.indexOf("\nfunction teachingMarkup(l)", bankStart);
 assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
 const bankSource = html.slice(bankStart, bankEnd);
-const bankContext = { shuffle: items => items.slice() };
+const bankContext = { shuffle: items => items.slice(), CURRICULUM: curriculum };
 vm.createContext(bankContext);
 vm.runInContext(bankSource, bankContext);
 for (const lesson of all) {
