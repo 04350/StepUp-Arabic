@@ -174,7 +174,7 @@ jobs:
           script: python tests/android-emulator-smoke.py
 
       - name: Prepare a clearly named APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
@@ -188,11 +188,11 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0
-          name: StepUp Arabic Android v0.1.0
+          tag_name: v2.0.0
+          name: StepUp Arabic Android v2.0.0
           body: |
             StepUp Arabic Android app.
-            Offline Hebrew UI with 49 learning units: 20 Palestinian spoken Arabic and 29 MSA.
+            Offline Hebrew UI with 57 learning units: 24 Palestinian spoken Arabic and 33 MSA. Includes smart review, dictionary, favorites, sentence audio, daily goals, dark theme and local progress.
             Beginner alphabet, connected letter forms, vowels, reading, lesson quizzes and two bundled human MSA listening clips.
             Signed APK for manual installation. Android 6.0 (API 23) or newer.
           files: android/app/build/outputs/apk/debug/StepUp-Arabic-v0.1.0.apk
