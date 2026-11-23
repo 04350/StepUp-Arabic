@@ -142,3 +142,10 @@ Nabra-7M-Distill הוא מודל TTS קטן (כ-28.7MB, Apache 2.0) שנועד �
 8. בדיקת APK על אמולטור ובדיקת EXE על Windows runner.
 9. סריקה לוודא שאין קריאות רשת לא נחוצות או קובצי מדיה חסרי רישיון.
 10. בדיקת התקנה נקייה במכשיר חדש לפני הפצת הגרסה.
+
+
+## StepUp Arabic 2.0 upgrade scope
+
+The 2.0 branch expands the course from 49 to 57 units (24 Palestinian spoken + 33 MSA), adds separate offline speech files for every lesson example, and introduces a dictionary, favorites, spaced repetition, daily learning goals, audio-speed controls, dark theme, achievements and seven-day activity chart. These additions share the same HTML application embedded by the Windows and Android packaging workflows.
+
+Multi-speaker evaluation remains separate from production: the current lightweight Palestinian model is single-speaker. The larger voice-cloning checkpoint requires reference speech and heavier dependencies; multi-speaker alternatives reviewed so far either lack Palestinian coverage or impose non-commercial restrictions. No unsupported voice has been labelled as Palestinian or shipped in this branch.
