@@ -45,6 +45,10 @@ assert(fs.existsSync("scripts/generate_nabra_audio.mjs"), "MSA and letter audio 
 assert(fs.existsSync("scripts/generate_sofelia_audio.py"), "Palestinian Arabic audio generator missing");
 assert(fs.existsSync("scripts/fetch_arabic_font.py"), "Bundled Arabic font fetch script missing");
 assert(fs.existsSync("tests/verify-generated-audio.py"), "Generated offline audio verifier missing");
+assert(fs.existsSync("scripts/content_review.py") && fs.existsSync("tests/test-content-review.py"), "Structured content-review workflow is missing");
+assert(html.includes('id="arabicFontSize"') && html.includes("--arabic-font-scale"), "Adjustable Arabic font-size setting is missing");
+assert(html.includes("function applyArabicFontSize") && html.includes("arabicFontSize:x.preferences"), "Arabic font size must be applied and persisted");
+assert(html.includes("data.schema!==2") && html.includes("גרסת הגיבוי אינה נתמכת"), "Backup schema version must be validated before restore");
 assert(fs.existsSync("tests/android-emulator-smoke.py"), "Standalone Android emulator smoke test missing");
 const androidSmoke = fs.readFileSync("tests/android-emulator-smoke.py", "utf8");
 const androidWorkflow = fs.readFileSync(".github/workflows/build-android.yml", "utf8");
