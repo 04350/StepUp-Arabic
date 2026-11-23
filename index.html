@@ -227,7 +227,7 @@ function makeQuestionBank(l){
   (l.examples||[]).forEach((example,i)=>{
     const pool=CURRICULUM[track].filter(item=>item.id!==l.id).flatMap(item=>(item.examples||[]).map(x=>x[1]));
     const choices=[...new Set([example[1],...shuffle(pool).filter(x=>x!==example[1])])].slice(0,4);
-    if(choices.length===4)qs.push({id:l.id+"-example-"+i,prompt:'מה פירוש המשפט <span class="word-ar" lang="ar" dir="rtl">'+example[0]+'</span>?',options:shuffle(choices),answer:example[1],explanation:"פירוש המשפט: "+example[1]+".",word:[example[0],example[1],"","משפט לדוגמה"],lesson:l,dir:"rtl"});
+    if(choices.length===4)qs.push({id:l.id+"-example-"+i,prompt:"האזן למשפט ובחר את משמעותו:",audio:"generated/"+l.id+"-example-"+String(i+1).padStart(2,"0")+".wav",options:shuffle(choices),answer:example[1],explanation:"פירוש המשפט: "+example[1]+".",word:[example[0],example[1],"","משפט לדוגמה"],lesson:l,dir:"rtl"});
   });
   return qs;
 }
