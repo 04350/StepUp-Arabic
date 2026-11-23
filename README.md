@@ -62,6 +62,29 @@ python scripts/content_review.py apply --input content-review.json --output inde
 היישומים נועדו לפעול ללא אינטרנט לאחר ההתקנה. האינטרנט נדרש רק בתהליך הבנייה לצורך הורדת מודלי יצירת השמע וקטעי המקור המורשים.
 
 
+## שמירת נתונים ועדכון גרסאות
+
+- ב-Windows, פרופיל WebView2 וההתקדמות נשמרים תחת `%LOCALAPPDATA%/StepUpArabic`; החלפת קובץ ה-EXE אינה אמורה למחוק אותם.
+- ב-Android, קובץ ההתקדמות נשמר בתיקייה הפרטית של האפליקציה. עדכון APK שומר את הנתונים כאשר מזהה האפליקציה ומפתח החתימה נשארים זהים.
+- APK שנבנה ב-Pull Request מיועד לבדיקות ומשתמש בחתימת Debug. פרסום APK מענף `main` דורש מפתח חתימה קבוע דרך GitHub Actions Secrets; ללא ארבעת הסודות הבנייה נעצרת ולא מתפרסם APK בעל חתימה מתחלפת.
+- לפני התקנה ראשונה של גרסה חתומה במפתח חדש במקום APK ישן, מומלץ לייצא גיבוי JSON ולשמור אותו מחוץ לאפליקציה. הסרת התקנה באנדרואיד מוחקת את הנתונים המקומיים; לאחר מכן ניתן לשחזר את קובץ הגיבוי.
+
+### הגדרת מפתח חתימה קבוע לאנדרואיד
+
+יש ליצור פעם אחת מפתח מקומי, לשמור אותו במקום בטוח ולא להעלות אותו למאגר:
+
+```powershell
+keytool -genkeypair -v -keystore stepup-arabic-release.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias stepuparabic
+```
+
+ב-GitHub: Settings → Secrets and variables → Actions, יש להגדיר את הסודות הבאים:
+- `ANDROID_KEYSTORE_BASE64` — תוכן קובץ ה-JKS בקידוד Base64. ב-PowerShell אפשר להפיקו כך: `[Convert]::ToBase64String([IO.File]::ReadAllBytes(".\\stepup-arabic-release.jks"))`.
+- `ANDROID_KEYSTORE_PASSWORD` — סיסמת מאגר המפתחות.
+- `ANDROID_KEY_ALIAS` — שם המפתח; בפקודה למעלה: `stepuparabic`.
+- `ANDROID_KEY_PASSWORD` — סיסמת המפתח.
+
+יש לשמור גיבוי מאובטח של קובץ ה-JKS והסיסמאות. אובדן מפתח החתימה ימנע עדכון APK שהותקן עם המפתח הזה.
+
 ## התקנה
 - **Windows:** הורידו את StepUp-Arabic.exe והפעילו. נדרש Microsoft Edge WebView2 Runtime; הוא כלול ב-Windows 11 וברוב מחשבי Windows 10. אם הוא חסר, יש להתקין אותו פעם אחת. קובץ ה-EXE אינו חתום דיגיטלית, ולכן Windows עשוי להציג אזהרת SmartScreen.
 - **Android:** הורידו את StepUp-Arabic-v2.0.0.apk ופתחו אותו להתקנה ידנית. נדרש Android 6.0 ומעלה. ה-APK חתום בחתימת debug לצורך התקנה ידנית, ולא בחתימת הפצה של Google Play.
