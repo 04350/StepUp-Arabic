@@ -99,7 +99,7 @@ for (const lesson of all) {
   const bank = bankContext.makeQuestionBank(lesson);
   const audioWords = lesson.words.filter(word => word[4]).length;
   assert(bank.length === lesson.words.length * 2 + audioWords + lesson.examples.length, "Each vocabulary item must generate two questions, plus listening and sentence questions: " + lesson.id);
-  assert(bank.filter(question => question.audio).length === audioWords, "Each bundled recording must generate a listening question: " + lesson.id);
+  assert(bank.filter(question => question.audio).length === audioWords + lesson.examples.length, "Each bundled word and example recording must generate a listening question: " + lesson.id);
   const ids = new Set();
   for (const question of bank) {
     assert(!ids.has(question.id), "Duplicate question ID in " + lesson.id);
