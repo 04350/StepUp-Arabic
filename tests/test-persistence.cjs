@@ -94,7 +94,7 @@ assert.throws(() => browserContext.restoreBackupPayload({ app: "Different App", 
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 99, state: {} }), /גרסת הגיבוי/);
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2, state: [] }), /מבנה הגיבוי/);
 assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2 }), /מבנה הגיבוי/);
-assert.throws(() => browserContext.restoreBackupPayload(null), /Invalid backup/);
+assert.throws(() => browserContext.restoreBackupPayload(null), /מבנה הגיבוי/);
 
 // If WebView localStorage is unavailable, Android's private progress file is the fallback.
 const brokenStorage = {
