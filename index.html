@@ -179,13 +179,92 @@ function save(){
 function createBackupPayload(){
   return {app:"StepUp Arabic",schema:2,exportedAt:new Date().toISOString(),state:normalizeState(state)};
 }
+function validateBackupState(payload,strict){
+  if(!payload||typeof payload!=="object"||Array.isArray(payload))throw new Error("מבנה נתוני ההתקדמות בגיבוי פגום.");
+  const objectValue=value=>!!value&&typeof value==="object"&&!Array.isArray(value);
+  const required={completed:"array",scores:"object",mistakes:"object",correct:"number",answered:"number",studyDates:"array",finalExams:"array",favorites:"array",reviewStats:"object",preferences:"object"};
+  Object.keys(required).forEach(function(key){
+    if(strict&&!Object.prototype.hasOwnProperty.call(payload,key))throw new Error("חסר שדה חובה בגיבוי: "+key+".");
+    if(!Object.prototype.hasOwnProperty.call(payload,key))return;
+    const type=required[key],value=payload[key];
+    if(type==="array"&&!Array.isArray(value))throw new Error("מבנה השדה "+key+" בגיבוי פגום.");
+    if(type==="object"&&!objectValue(value))throw new Error("מבנה השדה "+key+" בגיבוי פגום.");
+    if(type==="number"&&(!Number.isFinite(value)||value<0||Math.floor(value)!==value))throw new Error("ערך מספרי לא תקין בשדה "+key+".");
+  });
+  if(payload.correct>payload.answered)throw new Error("נתוני התשובות הנכונות בגיבוי אינם עקביים.");
+  const lessonMap={},contentKeys={};
+  ALL_LESSONS.forEach(function(lesson){
+    lessonMap[lesson.id]=lesson;
+    lesson.words.forEach(function(word){contentKeys[lesson.id+"|"+word[0]]=true;});
+    (lesson.examples||[]).forEach(function(example){contentKeys[lesson.id+"|"+example[0]]=true;});
+  });
+  if(payload.completed){
+    const seen={};
+    payload.completed.forEach(function(id){
+      if(typeof id!=="string"||!lessonMap[id])throw new Error("הגיבוי מכיל מזהה שיעור לא מוכר.");
+      if(seen[id])throw new Error("הגיבוי מכיל שיעור כפול.");
+      seen[id]=true;
+    });
+  }
+  if(payload.scores){
+    Object.keys(payload.scores).forEach(function(id){
+      const score=payload.scores[id];
+      if(!lessonMap[id]||!Number.isFinite(score)||score<0||score>100)throw new Error("הגיבוי מכיל ציון לא תקין.");
+    });
+  }
+  if(payload.mistakes){
+    Object.keys(payload.mistakes).forEach(function(key){
+      const item=payload.mistakes[key],separator=key.indexOf("|"),lessonId=separator>0?key.slice(0,separator):"",arabic=separator>0?key.slice(separator+1):"",lesson=lessonMap[lessonId];
+      if(!lesson||!contentKeys[key]||!objectValue(item)||item.lessonId!==lessonId||item.track!==lesson.track||item.ar!==arabic||typeof item.he!=="string")throw new Error("הגיבוי מכיל רשומת טעות פגומה או לא מוכרת.");
+    });
+  }
+  if(payload.favorites){
+    const seen={};
+    payload.favorites.forEach(function(key){
+      if(typeof key!=="string"||!contentKeys[key])throw new Error("הגיבוי מכיל מועדף שאינו קיים בתוכנית הלימודים.");
+      if(seen[key])throw new Error("הגיבוי מכיל מועדף כפול.");
+      seen[key]=true;
+    });
+  }
+  if(payload.reviewStats){
+    Object.keys(payload.reviewStats).forEach(function(key){
+      const item=payload.reviewStats[key];
+      if(!contentKeys[key]||!objectValue(item)||!Number.isFinite(Number(item.repetitions))||Number(item.repetitions)<0||!Number.isFinite(Number(item.intervalDays))||Number(item.intervalDays)<0||Number(item.intervalDays)>90||!Number.isFinite(Number(item.dueAt))||item.dueAt<0||typeof item.lastReviewedAt!=="string"||!Number.isFinite(Date.parse(item.lastReviewedAt)))throw new Error("הגיבוי מכיל נתוני חזרה פגומים.");
+    });
+  }
+  if(payload.studyDates){
+    const seen={};
+    payload.studyDates.forEach(function(day){
+      if(typeof day!=="string"||!/^\\d{4}-\\d{2}-\\d{2}$/.test(day)||!Number.isFinite(Date.parse(day+"T00:00:00Z")))throw new Error("הגיבוי מכיל תאריך לימוד לא תקין.");
+      if(seen[day])throw new Error("הגיבוי מכיל תאריך לימוד כפול.");
+      seen[day]=true;
+    });
+  }
+  if(payload.finalExams){
+    payload.finalExams.forEach(function(exam){
+      if(!objectValue(exam)||!Number.isFinite(Number(exam.score))||Number(exam.score)<0||Number(exam.score)>100||!Number.isFinite(Number(exam.correct))||!Number.isFinite(Number(exam.total))||Number(exam.correct)<0||Number(exam.total)<1||Number(exam.correct)>Number(exam.total)||typeof exam.at!=="string"||!Number.isFinite(Date.parse(exam.at)))throw new Error("הגיבוי מכיל תוצאת מבחן פגומה.");
+    });
+  }
+  if(payload.preferences){
+    const p=payload.preferences;
+    if(p.activeTrack!==undefined&&p.activeTrack!=="spoken"&&p.activeTrack!=="formal")throw new Error("הגיבוי מכיל מסלול לימוד לא תקין.");
+    if(p.theme!==undefined&&p.theme!=="light"&&p.theme!=="dark")throw new Error("הגיבוי מכיל הגדרת תצוגה לא תקינה.");
+    if(p.dailyGoal!==undefined&&![5,10,15,20,30].includes(Number(p.dailyGoal)))throw new Error("הגיבוי מכיל יעד חזרות לא תקין.");
+    if(p.audioSpeed!==undefined&&![0.75,1,1.25,1.5].includes(Number(p.audioSpeed)))throw new Error("הגיבוי מכיל מהירות שמע לא תקינה.");
+    if(p.arabicFontSize!==undefined&&![0.9,1,1.15,1.3,1.5].includes(Number(p.arabicFontSize)))throw new Error("הגיבוי מכיל גודל גופן לא תקין.");
+  }
+  if(payload.lastSavedAt!==undefined&&payload.lastSavedAt!==null&&(typeof payload.lastSavedAt!=="string"||!Number.isFinite(Date.parse(payload.lastSavedAt))))throw new Error("תאריך השמירה בגיבוי אינו תקין.");
+  return true;
+}
 function restoreBackupPayload(data){
   if(!data||typeof data!=="object"||Array.isArray(data))throw new Error("מבנה הגיבוי פגום או חסר.");
   const wrapped=Object.prototype.hasOwnProperty.call(data,"app")||Object.prototype.hasOwnProperty.call(data,"schema")||Object.prototype.hasOwnProperty.call(data,"state");
   if(wrapped&&data.app!=="StepUp Arabic")throw new Error("הקובץ אינו גיבוי של StepUp Arabic.");
   if(wrapped&&data.schema!==2)throw new Error("גרסת הגיבוי אינה נתמכת. יש לייצא גיבוי מהגרסה הנוכחית.");
   if(wrapped&&(!Object.prototype.hasOwnProperty.call(data,"state")||!data.state||typeof data.state!=="object"||Array.isArray(data.state)))throw new Error("מבנה הגיבוי פגום או חסר.");
-  return normalizeState(wrapped?data.state:data);
+  const payload=wrapped?data.state:data;
+  validateBackupState(payload,wrapped);
+  return normalizeState(payload);
 }
 function markStudy(){const day=new Date().toISOString().slice(0,10);if(!state.studyDates.includes(day))state.studyDates.push(day);save();}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
