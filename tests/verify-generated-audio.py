@@ -54,6 +54,8 @@ require(len(letters) == 28, "Expected 28 Arabic letters")
 
 expected_spoken = 0
 expected_formal = 0
+expected_spoken_examples = 0
+expected_formal_examples = 0
 for track, expected in (("spoken", "Palestinian Arabic"), ("formal", "Modern Standard Arabic")):
     for lesson in curriculum[track]:
         for index, word in enumerate(lesson["words"], start=1):
@@ -64,14 +66,22 @@ for track, expected in (("spoken", "Palestinian Arabic"), ("formal", "Modern Sta
                 expected_spoken += 1
             else:
                 expected_formal += 1
+        for index, example in enumerate(lesson.get("examples", []), start=1):
+            require(len(example) >= 2 and str(example[0]).strip() and str(example[1]).strip(), f"Invalid example sentence in {lesson['id']}")
+            filename = f"{lesson['id']}-example-{index:02d}.wav"
+            verify_wav(GENERATED / filename, f"{expected}: {lesson['id']} example {index} ({example[0]})")
+            if track == "spoken":
+                expected_spoken_examples += 1
+            else:
+                expected_formal_examples += 1
 
 for index, letter in enumerate(letters, start=1):
     verify_wav(GENERATED / f"letter-{index:02d}.wav", f"Arabic letter {letter[0]}")
 
 spoken_manifest = json.loads((GENERATED / "spoken-manifest.json").read_text(encoding="utf-8"))
 formal_manifest = json.loads((GENERATED / "formal-manifest.json").read_text(encoding="utf-8"))
-require(len(spoken_manifest["files"]) == expected_spoken, "Palestinian manifest count does not match curriculum")
-require(len(formal_manifest["files"]) == expected_formal + len(letters), "MSA/alphabet manifest count does not match curriculum")
+require(len(spoken_manifest["files"]) == expected_spoken + expected_spoken_examples, "Palestinian manifest count does not match words and example sentences")
+require(len(formal_manifest["files"]) == expected_formal + expected_formal_examples + len(letters), "MSA/alphabet manifest count does not match words, examples and letters")
 require(spoken_manifest["language"] == "Palestinian Arabic", "Spoken track voice is not labelled Palestinian")
 require(formal_manifest["language"] == "Modern Standard Arabic", "Formal track voice is not labelled MSA")
 
@@ -95,6 +105,8 @@ print(json.dumps({
     "msa_word_audio": expected_formal,
     "arabic_letter_name_audio": len(letters),
     "human_msa_sentence_audio": 5,
+    "spoken_synthetic_example_audio": expected_spoken_examples,
+    "formal_synthetic_example_audio": expected_formal_examples,
     "total_wav_files": expected_spoken + expected_formal + len(letters) + 5,
     "arabic_font": "valid, bundled with OFL.txt",
     "format": "24 kHz mono 16-bit PCM WAV",
