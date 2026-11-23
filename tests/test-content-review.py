@@ -23,7 +23,9 @@ records = document["records"]
 require(document["format"] == "StepUp Arabic content review", "Review format is incorrect")
 require(len([r for r in records if r["type"] == "lesson"]) == 57, "Expected review data for all 57 lessons")
 require(len([r for r in records if r["type"] == "word"]) >= 404, "Expected all vocabulary entries")
-require(len([r for r in records if r["type"] == "example"]) == 57, "Expected example records for all lessons")
+example_records = [r for r in records if r["type"] == "example"]
+require(len(example_records) >= 57, "Expected at least one example record for every lesson")
+require({r["lesson_id"] for r in example_records} == {r["lesson_id"] for r in records if r["type"] == "lesson"}, "Every lesson must have at least one reviewable example")
 require(all(r["review_status"] == "pending" for r in records), "New exports must default to pending")
 
 approved = copy.deepcopy(document)
