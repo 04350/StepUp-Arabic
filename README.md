@@ -78,7 +78,7 @@ keytool -genkeypair -v -keystore stepup-arabic-release.jks -storetype JKS -keyal
 ```
 
 ב-GitHub: Settings → Secrets and variables → Actions, יש להגדיר את הסודות הבאים:
-- `ANDROID_KEYSTORE_BASE64` — תוכן קובץ ה-JKS בקידוד Base64. ב-PowerShell אפשר להפיקו כך: `[Convert]::ToBase64String([IO.File]::ReadAllBytes(".\\stepup-arabic-release.jks"))`.
+- `ANDROID_KEYSTORE_BASE64` — תוכן קובץ ה-JKS בקידוד Base64. ב-PowerShell אפשר להפיקו כך: `[Convert]::ToBase64String([IO.File]::ReadAllBytes(".\stepup-arabic-release.jks"))`.
 - `ANDROID_KEYSTORE_PASSWORD` — סיסמת מאגר המפתחות.
 - `ANDROID_KEY_ALIAS` — שם המפתח; בפקודה למעלה: `stepuparabic`.
 - `ANDROID_KEY_PASSWORD` — סיסמת המפתח.
