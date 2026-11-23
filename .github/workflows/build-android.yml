@@ -47,6 +47,9 @@ jobs:
       - name: Test local save, restore and Android fallback
         run: node tests/test-persistence.cjs
 
+      - name: Test editable content-review workflow
+        run: python tests/test-content-review.py
+
       - name: Set up Python for licensed audio assets
         uses: actions/setup-python@v5
         with:
