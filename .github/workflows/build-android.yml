@@ -18,6 +18,10 @@ on:
       - "index.html"
       - "android/**"
       - "tests/**"
+      - "scripts/**"
+      - "audio/**"
+      - "requirements-audio.txt"
+      - "requirements-sofelia.txt"
       - ".github/workflows/build-android.yml"
   workflow_dispatch:
 
@@ -135,48 +139,59 @@ jobs:
           test -s "$KEYSTORE_PATH"
           echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
 
-      - name: Build Android APK
+      - name: Build Android APKs
         working-directory: android
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
+        run: |
+          gradle --no-daemon --stacktrace :app:assembleDebug
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            gradle --no-daemon --stacktrace :app:assembleRelease
+          fi
 
-      - name: Verify APK and embedded offline content
+      - name: Verify APKs and embedded offline content
         working-directory: android
         run: |
           python3 - <<'PY'
           from pathlib import Path
           from zipfile import ZipFile
-          apk = Path("app/build/outputs/apk/debug/app-debug.apk")
+          import json
           source = Path("../index.html").read_bytes()
-          assert apk.is_file() and apk.stat().st_size > 100_000, "APK missing or unexpectedly small"
-          with ZipFile(apk) as archive:
-              assert archive.testzip() is None, "APK ZIP integrity check failed"
-              assert archive.read("assets/audio/manifest.json") == Path("../audio/manifest.json").read_bytes(), "APK audio attribution manifest mismatch"
-              bundled = archive.read("assets/index.html")
-              assert bundled == source, "APK does not contain the current index.html"
-              import json
-              for name in ("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"):
-                  source_audio = Path("../audio") / name
-                  assert source_audio.is_file(), f"Required audio source missing: {name}"
-                  assert archive.read("assets/audio/" + name) == source_audio.read_bytes(), f"APK audio mismatch: {name}"
-              for manifest_name in ("generated/spoken-manifest.json", "generated/formal-manifest.json"):
-                  source_manifest = Path("../audio") / manifest_name
-                  manifest = json.loads(source_manifest.read_text(encoding="utf-8"))
-                  assert archive.read("assets/audio/" + manifest_name) == source_manifest.read_bytes(), f"APK manifest mismatch: {manifest_name}"
-                  for item in manifest["files"]:
-                      relative = item["file"]
-                      source_audio = Path("../audio") / relative
-                      assert source_audio.is_file(), f"Generated audio missing from build: {relative}"
-                      assert archive.read("assets/audio/" + relative) == source_audio.read_bytes(), f"APK generated audio mismatch: {relative}"
-              for font_name in ("fonts/NotoSansArabic.ttf", "fonts/OFL.txt"):
-                  source_font = Path("../audio") / font_name
-                  assert archive.read("assets/audio/" + font_name) == source_font.read_bytes(), f"APK Arabic font mismatch: {font_name}"
-          print(f"APK verified: {apk.stat().st_size:,} bytes; embedded HTML: {len(source):,} bytes")
+          apk_paths = [Path("app/build/outputs/apk/debug/app-debug.apk")]
+          import os
+          if os.environ.get("GITHUB_REF") == "refs/heads/main":
+              apk_paths.append(Path("app/build/outputs/apk/release/app-release.apk"))
+          for apk in apk_paths:
+              assert apk.is_file() and apk.stat().st_size > 100_000, f"APK missing or unexpectedly small: {apk}"
+              with ZipFile(apk) as archive:
+                  assert archive.testzip() is None, f"APK ZIP integrity check failed: {apk}"
+                  assert archive.read("assets/audio/manifest.json") == Path("../audio/manifest.json").read_bytes(), f"APK audio attribution manifest mismatch: {apk}"
+                  bundled = archive.read("assets/index.html")
+                  assert bundled == source, f"APK does not contain the current index.html: {apk}"
+                  for name in ("msa-in-morning.wav", "msa-city-small.wav", "msa-one-day.wav", "msa-on-distant-planet.wav", "msa-their-food-is-the-same.wav"):
+                      source_audio = Path("../audio") / name
+                      assert source_audio.is_file(), f"Required audio source missing: {name}"
+                      assert archive.read("assets/audio/" + name) == source_audio.read_bytes(), f"APK audio mismatch: {name} ({apk})"
+                  for manifest_name in ("generated/spoken-manifest.json", "generated/formal-manifest.json"):
+                      source_manifest = Path("../audio") / manifest_name
+                      manifest = json.loads(source_manifest.read_text(encoding="utf-8"))
+                      assert archive.read("assets/audio/" + manifest_name) == source_manifest.read_bytes(), f"APK manifest mismatch: {manifest_name} ({apk})"
+                      for item in manifest["files"]:
+                          relative = item["file"]
+                          source_audio = Path("../audio") / relative
+                          assert source_audio.is_file(), f"Generated audio missing from build: {relative}"
+                          assert archive.read("assets/audio/" + relative) == source_audio.read_bytes(), f"APK generated audio mismatch: {relative} ({apk})"
+                  for font_name in ("fonts/NotoSansArabic.ttf", "fonts/OFL.txt"):
+                      source_font = Path("../audio") / font_name
+                      assert archive.read("assets/audio/" + font_name) == source_font.read_bytes(), f"APK Arabic font mismatch: {font_name} ({apk})"
+              print(f"APK verified: {apk} — {apk.stat().st_size:,} bytes; embedded HTML: {len(source):,} bytes")
           PY
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           test -n "$SDK_ROOT" || { echo "Android SDK root was not found"; exit 1; }
           APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -n "$APKSIGNER" || { echo "apksigner was not found in Android build-tools"; exit 1; }
           "$APKSIGNER" verify --verbose app/build/outputs/apk/debug/app-debug.apk
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
+          fi
 
       - name: Enable KVM for Android emulator
         run: |
@@ -186,6 +201,8 @@ jobs:
 
       - name: Smoke test on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          STEPUP_APK_PATH: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/app-release.apk' || 'android/app/build/outputs/apk/debug/app-debug.apk' }}
         with:
           api-level: 29
           target: google_apis
@@ -197,13 +214,18 @@ jobs:
           script: python tests/android-emulator-smoke.py
 
       - name: Prepare a clearly named APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/StepUp-Arabic-v2.0.0.apk
+          else
+            cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
+          fi
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
           name: StepUp-Arabic-Android
-          path: android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
+          path: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/StepUp-Arabic-v2.0.0.apk' || 'android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk' }}
           if-no-files-found: error
           retention-days: 30
 
@@ -218,7 +240,7 @@ jobs:
             Offline Hebrew UI with 57 learning units: 24 Palestinian spoken Arabic and 33 MSA. Includes smart review, dictionary, favorites, sentence audio, daily goals, dark theme and local progress.
             Beginner alphabet, connected letter forms, vowels, reading, lesson quizzes and two bundled human MSA listening clips.
             Signed APK for manual installation. Android 6.0 (API 23) or newer.
-          files: android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
+          files: android/app/build/outputs/apk/release/StepUp-Arabic-v2.0.0.apk
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
