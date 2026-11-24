@@ -135,6 +135,11 @@ def main() -> int:
         raise RuntimeError("AndroidRuntime reported a fatal exception:\n" + fatal[-8000:])
 
     print("ANDROID_SMOKE_TEST_PASSED")
+    if os.environ.get("STEPUP_RELEASE_APK_PATH", "").strip():
+        subprocess.run(
+            [sys.executable, "tests/android-release-smoke.py"],
+            check=True,
+        )
     return 0
 
 
