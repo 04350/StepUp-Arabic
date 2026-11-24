@@ -7,6 +7,7 @@ multi-step shell control flow in Python rather than embedding compound shell loo
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import time
@@ -78,8 +79,11 @@ def main() -> int:
     else:
         raise RuntimeError("Android emulator did not finish booting")
 
-    print("Installing current APK...")
-    adb("install", "-r", "android/app/build/outputs/apk/debug/app-debug.apk", timeout=180)
+    apk_path = os.environ.get("STEPUP_APK_PATH", "android/app/build/outputs/apk/debug/app-debug.apk")
+    if not os.path.isfile(apk_path):
+        raise RuntimeError(f"APK selected for emulator smoke test does not exist: {apk_path}")
+    print(f"Installing current APK: {apk_path}")
+    adb("install", "-r", apk_path, timeout=180)
     adb("logcat", "-c")
     launch_output = adb("shell", "am", "start", "-W", "-n", ACTIVITY, "--ez", "stepup_smoke", "true", timeout=60)
     print("Launch result: " + launch_output)
