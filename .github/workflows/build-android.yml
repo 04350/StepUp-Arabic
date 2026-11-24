@@ -202,7 +202,7 @@ jobs:
       - name: Smoke test on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          STEPUP_APK_PATH: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/app-release.apk' || 'android/app/build/outputs/apk/debug/app-debug.apk' }}
+          STEPUP_RELEASE_APK_PATH: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/app-release.apk' || '' }}
         with:
           api-level: 29
           target: google_apis
@@ -211,7 +211,9 @@ jobs:
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: python tests/android-emulator-smoke.py
+          script: |
+            python tests/android-emulator-smoke.py
+            python tests/android-release-smoke.py
 
       - name: Prepare a clearly named APK
         run: |
