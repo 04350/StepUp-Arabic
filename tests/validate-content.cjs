@@ -7,18 +7,13 @@ assert(!/\?\?/.test(html), "Nullish coalescing is not supported by the minimum A
 const match = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=/);
 assert(match, "Curriculum object is missing or malformed");
 const curriculum = JSON.parse(match[1]);
-assert(curriculum.spoken.length === 20, "Expected exactly 20 spoken lessons");
-assert(curriculum.formal.length === 29, "Expected exactly 29 formal lessons");
+assert(curriculum.spoken.length === 24, "Expected exactly 24 spoken lessons");
+assert(curriculum.formal.length === 33, "Expected exactly 33 formal lessons");
 assert(curriculum.formal.slice(0,4).every(x => x.kind === "alphabet"), "The MSA track must begin with four alphabet units");
 assert(curriculum.formal.filter(x => x.kind === "sound").length >= 3, "Short vowels, sukun/shadda and long vowels must be taught in sound units");
 assert(curriculum.formal.some(x => x.id === "ms-a9" && x.kind === "reading"), "Beginner reading lesson is missing");
 assert(html.includes('activeTrack="formal"'), "A brand-new learner should begin in the alphabet/reading track");
 assert(html.includes('data-retry="'), "Mistake review must link back to the original lesson");
-curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي الصَّبَاحِ","בבוקר","fī aṣ-ṣabāḥ","משפט קצר להאזנה","msa-in-morning.wav"]);
-curriculum.formal.find(x => x.id === "ms-07").words.push(["في مَدِينَةٍ صَغيرَة","בעיר קטנה","fī madīna ṣaghīra","משפט קצר להאזנה","msa-city-small.wav"]);
-curriculum.formal.find(x => x.id === "ms-05").words.push(["فِي ذَاتِ يَوْمٍ","יום אחד","fī dhāti yawmin","משפט קצר להאזנה","msa-one-day.wav"]);
-curriculum.formal.find(x => x.id === "ms-07").words.push(["عَلَى كَوْكَبٍ بَعِيدٍ","על כוכב רחוק","ʿalā kawkabin baʿīdin","משפט קצר להאזנה","msa-on-distant-planet.wav"]);
-curriculum.formal.find(x => x.id === "ms-12").words.push(["طَعَامُهُمْ وَاحِدٌ","האוכל שלהם זהה","ṭaʿāmuhum wāḥidun","משפט קצר להאזנה","msa-their-food-is-the-same.wav"]);
 const all = [...curriculum.spoken, ...curriculum.formal];
 const ids = new Set();
 let vocabCount = 0;
@@ -34,7 +29,7 @@ for (const lesson of all) {
     words.add(word[0]); vocabCount++;
   }
 }
-assert(vocabCount >= 348, "Expected at least 345 learning entries including two audio phrases; found " + vocabCount);
+assert(vocabCount >= 404,  "Expected at least 404 learning entries including five bundled listening phrases; found " + vocabCount);
 assert((html.match(/\["[اأإآب-ي]"/g) || []).length >= 28, "Arabic alphabet forms are missing");
 assert(html.includes("localStorage"), "Local progress storage missing");
 assert(html.includes("StepUp-Arabic-backup.json"), "Backup export missing");
@@ -50,11 +45,19 @@ assert(fs.existsSync("scripts/generate_nabra_audio.mjs"), "MSA and letter audio 
 assert(fs.existsSync("scripts/generate_sofelia_audio.py"), "Palestinian Arabic audio generator missing");
 assert(fs.existsSync("scripts/fetch_arabic_font.py"), "Bundled Arabic font fetch script missing");
 assert(fs.existsSync("tests/verify-generated-audio.py"), "Generated offline audio verifier missing");
+assert(fs.existsSync("scripts/content_review.py") && fs.existsSync("tests/test-content-review.py"), "Structured content-review workflow is missing");
+assert(html.includes('id="arabicFontSize"') && html.includes("--arabic-font-scale"), "Adjustable Arabic font-size setting is missing");
+assert(html.includes("function applyArabicFontSize") && html.includes("arabicFontSize:x.preferences"), "Arabic font size must be applied and persisted");
+assert(html.includes("data.schema!==2") && html.includes("גרסת הגיבוי אינה נתמכת"), "Backup schema version must be validated before restore");
 assert(fs.existsSync("tests/android-emulator-smoke.py"), "Standalone Android emulator smoke test missing");
 const androidSmoke = fs.readFileSync("tests/android-emulator-smoke.py", "utf8");
 const androidWorkflow = fs.readFileSync(".github/workflows/build-android.yml", "utf8");
 assert(androidSmoke.includes("SAVE_PROGRESS_SUCCESS") && androidSmoke.includes('"restored":true'), "Android emulator smoke test must verify initial save and restart restore");
 assert(androidWorkflow.includes("script: python tests/android-emulator-smoke.py"), "Android workflow must run the standalone Python smoke test rather than multiline shell loops");
+assert(androidWorkflow.includes("printf 'ANDROID_KEYSTORE_PASSWORD=%s\\n' \"$ANDROID_KEYSTORE_PASSWORD\"") && androidWorkflow.includes("printf 'ANDROID_KEY_ALIAS=%s\\n' \"$ANDROID_KEY_ALIAS\"") && androidWorkflow.includes("printf 'ANDROID_KEY_PASSWORD=%s\\n' \"$ANDROID_KEY_PASSWORD\""), "Android workflow must export all persistent signing credentials to the Gradle build step");
+assert(androidWorkflow.includes("keytool -list -keystore") && androidWorkflow.includes("ANDROID_SIGNING_CONFIGURED=true"), "Android workflow must validate the persistent signing key before building Release");
+assert(androidWorkflow.includes(":app:assembleRelease") && androidWorkflow.includes("app/build/outputs/apk/release/app-release.apk"), "Main-branch Android publication must build and verify a Release APK");
+assert(androidWorkflow.includes("steps.configure_signing.outputs.configured == 'true'") && androidWorkflow.includes("ANDROID_SIGNING_CONFIGURED:-false"), "Android workflow must skip official Release publication when persistent signing is not configured while retaining Debug CI");
 
 const windowsWorkflow = fs.readFileSync(".github/workflows/build-desktop.yml", "utf8");
 assert(windowsWorkflow.includes("scripts/generate_nabra_audio.mjs") && windowsWorkflow.includes("scripts/generate_sofelia_audio.py") && windowsWorkflow.includes("audio/fonts"), "Windows workflow must generate and embed all Arabic speech and font files");
@@ -90,21 +93,21 @@ const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].fi
 assert(scripts.length, "No inline application script found");
 scripts.forEach((m, i) => new vm.Script(m[2].replace(/const CURRICULUM = \{[\s\S]*?\};/, "const CURRICULUM = {};"), { filename: "inline-" + (i + 1) + ".js" }));
 const exampleCount = all.filter(x => Array.isArray(x.examples) && x.examples.length).length;
-assert(exampleCount === 49, "Every lesson must contain at least one example sentence");
+assert(exampleCount === 57, "Every lesson must contain at least one example sentence");
 const teachingCount = all.filter(x => typeof x.teaching === "string" && x.teaching.trim()).length;
-assert(teachingCount === 49, "Every lesson must contain a teaching explanation");
+assert(teachingCount === 57, "Every lesson must contain a teaching explanation");
 const bankStart = html.indexOf("function makeQuestionBank(l){");
 const bankEnd = html.indexOf("\nfunction teachingMarkup(l)", bankStart);
 assert(bankStart >= 0 && bankEnd > bankStart, "Per-lesson question bank function is missing");
 const bankSource = html.slice(bankStart, bankEnd);
-const bankContext = { shuffle: items => items.slice() };
+const bankContext = { shuffle: items => items.slice(), CURRICULUM: curriculum };
 vm.createContext(bankContext);
 vm.runInContext(bankSource, bankContext);
 for (const lesson of all) {
   const bank = bankContext.makeQuestionBank(lesson);
   const audioWords = lesson.words.filter(word => word[4]).length;
-  assert(bank.length === lesson.words.length * 2 + audioWords, "Each vocabulary item must generate two questions plus one for every audio item: " + lesson.id);
-  assert(bank.filter(question => question.audio).length === audioWords, "Each bundled recording must generate a listening question: " + lesson.id);
+  assert(bank.length === lesson.words.length * 2 + audioWords + lesson.examples.length, "Each vocabulary item must generate two questions, plus listening and sentence questions: " + lesson.id);
+  assert(bank.filter(question => question.audio).length === audioWords + lesson.examples.length, "Each bundled word and example recording must generate a listening question: " + lesson.id);
   const ids = new Set();
   for (const question of bank) {
     assert(!ids.has(question.id), "Duplicate question ID in " + lesson.id);
@@ -115,6 +118,12 @@ for (const lesson of all) {
   }
 }
 assert(html.includes("examplesMarkup"), "Example sentence display is missing");
+assert(/generated\/['"]?\s*\+\s*l\.id\s*\+\s*['"]-example-/.test(html) && html.includes("function examplesMarkup(l)"), "Every lesson example must have its own bundled WAV player");
+assert(html.includes('data-view="review"') && html.includes('data-view="dictionary"') && html.includes('data-view="favorites"'), "Review, dictionary and favorites views must be available");
+assert(html.includes("function scheduleAnsweredQuestion") && html.includes("function applyReviewGrade"), "Spaced repetition scheduling and rating actions are missing");
+assert(html.includes("audioSpeedSettings") && html.includes("themeToggle") && html.includes("dailyGoal"), "Learning settings for playback speed, theme and daily goal are missing");
+assert(html.includes("achievementPanel") && html.includes("activityChart"), "Progress achievements and weekly activity chart are missing");
+assert(html.includes('"level":"מתקדמים"'), "Advanced lesson levels must be present");
 assert(html.includes("const listening=questionBank.filter(q=>q.audio)"), "Final exam must include the listening questions from completed lessons");
 assert(html.includes('id="view-guide"') && html.includes("ערבית ספרותית מודרנית (MSA)"), "Arabic varieties guide is missing");
 assert(html.includes("ערבית לבנטינית") && html.includes("ערבית מדוברת פלסטינית"), "Guide must explain Levantine and Palestinian Arabic");
@@ -136,4 +145,4 @@ assert(html.includes("window.StepUpNativeSaveFile") && html.includes("StepUp-Ara
 assert(desktopMain.includes('w.Bind("StepUpNativeSaveFile"'), "Windows must expose a native backup file writer");
 assert(desktopMain.includes('filepath.Join(home, "Downloads", "StepUp Arabic")'), "Windows backups must be stored in the user Downloads folder");
 assert(desktopMain.includes("json.Valid([]byte(content))"), "Windows backup writer must validate JSON before writing");
-console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item plus 1 for each human audio clip", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));
+console.log(JSON.stringify({ spokenLessons: curriculum.spoken.length, formalLessons: curriculum.formal.length, vocabularyItems: vocabCount, lessonsWithExamples: exampleCount, lessonsWithExplanations: teachingCount, generatedQuestionsPerLesson: "2 per vocabulary item, plus listening questions and one per example sentence", alphabetForms: 28, javascriptSyntax: "passed" }, null, 2));

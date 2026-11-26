@@ -26,7 +26,7 @@ const curriculum = JSON.parse(curriculumMatch[1]);
 const lettersMatch = HTML.match(/const LETTERS=(\[[\s\S]*?\]);\s*const KEY=/);
 assert(lettersMatch, "Cannot locate Arabic alphabet");
 const letters = JSON.parse(lettersMatch[1]);
-assert(curriculum.formal && curriculum.formal.length === 29, "Expected 29 MSA lessons");
+assert(curriculum.formal && curriculum.formal.length === 33, "Expected 29 MSA lessons");
 assert(letters.length === 28, "Expected 28 Arabic letters");
 
 const letterNames = [
@@ -74,6 +74,12 @@ try {
       const text = lesson.words[i][0];
       const filename = lesson.id + "-" + String(i + 1).padStart(2, "0") + ".wav";
       await writeSpeech(text, filename, lesson.id, "vocabulary");
+    }
+    for (let i = 0; i < (lesson.examples || []).length; i++) {
+      const example = lesson.examples[i];
+      const filename = lesson.id + "-example-" + String(i + 1).padStart(2, "0") + ".wav";
+      await writeSpeech(example[0], filename, lesson.id, "example-sentence");
+      generated[generated.length - 1].translation = example[1];
     }
   }
   for (let i = 0; i < letterNames.length; i++) {

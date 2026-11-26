@@ -110,6 +110,23 @@ def main() -> int:
             synthesize(str(word[0]), path)
             generated.append({"file": f"generated/{filename}", "text": word[0], "lesson": lesson_id, "voice": "Sofelia / Eliaa", "language": "Palestinian Arabic", "license": "Apache-2.0"})
 
+        # Generate a bundled offline recording for every lesson example sentence.
+        for example_index, example in enumerate(lesson.get("examples", []), start=1):
+            if len(example) < 2 or not str(example[0]).strip():
+                raise RuntimeError(f"Invalid example sentence in {lesson_id}")
+            example_filename = f"{lesson_id}-example-{example_index:02d}.wav"
+            synthesize(str(example[0]), OUT / example_filename)
+            generated.append({
+                "file": f"generated/{example_filename}",
+                "text": example[0],
+                "translation": example[1],
+                "lesson": lesson_id,
+                "type": "example-sentence",
+                "voice": "Sofelia / Eliaa",
+                "language": "Palestinian Arabic",
+                "license": "Apache-2.0",
+            })
+
     manifest = {
         "generator": "Sofelia-TTS-82M",
         "model": "hamdallah/Sofelia-TTS-82M",

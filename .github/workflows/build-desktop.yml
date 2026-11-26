@@ -12,6 +12,17 @@ on:
       - "audio/**"
       - "requirements-audio.txt"
       - "requirements-sofelia.txt"
+  pull_request:
+    branches: [main]
+    paths:
+      - "desktop/**"
+      - ".github/workflows/build-desktop.yml"
+      - "index.html"
+      - "tests/**"
+      - "scripts/**"
+      - "audio/**"
+      - "requirements-audio.txt"
+      - "requirements-sofelia.txt"
   workflow_dispatch:
 
 concurrency:
@@ -38,6 +49,9 @@ jobs:
 
       - name: Test local save, restore and Android fallback
         run: node tests/test-persistence.cjs
+
+      - name: Test editable content-review workflow
+        run: python tests/test-content-review.py
 
       - name: Set up Python for licensed audio assets
         uses: actions/setup-python@v5
@@ -167,11 +181,11 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0
-          name: StepUp Arabic v0.1.0
+          tag_name: v2.0.0
+          name: StepUp Arabic v2.0.0
           body: |
             StepUp Arabic Windows desktop app.
-            Offline Hebrew UI, 49 Arabic learning units (20 spoken Palestinian Arabic and 29 MSA), beginner alphabet path, and bundled human MSA listening samples.
+            Offline Hebrew UI, 57 Arabic learning units (24 spoken Palestinian Arabic and 33 MSA), advanced units, sentence audio, smart review, dictionary, favorites, daily goals, dark theme and local progress.
             Requires Microsoft Edge WebView2 Runtime.
           files: desktop/dist/StepUp-Arabic.exe
           overwrite_files: true

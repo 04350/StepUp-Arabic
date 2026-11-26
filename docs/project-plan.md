@@ -78,7 +78,7 @@
 - מבחני הבנת הנשמע והבנת הנקרא.
 - חזרות מתוזמנות על מילים ושאלות שהתלמיד התקשה בהן.
 
-יעד התוכן הראשוני הוא 49 שיעורים מדורגים בתוכנית התוכן הראשונה (20 במדוברת ו-29 בספרותית); לא נבנה את כל המאגר בבת אחת לפני בדיקות שפה ופדגוגיה. בכל שיעור יהיו מטרות ברורות, חומר חדש, דוגמאות, תרגול קצר, בדיקת הבנה ומבחן.
+תוכנית הבסיס נבנתה במקור עם 49 שיעורים (20 במדוברת ו-29 בספרותית). בגרסה 2.0 התוכנית הורחבה ל-57 שיעורים (24 במדוברת פלסטינית ו-33 בספרותית). בכל שיעור יש מטרות, הסבר, דוגמאות ותרגול; התוכן עדיין דורש הגהה לשונית ופדגוגית של דובר ערבית/מורה.
 
 ## שגרת שיעור
 1. חזרה קצרה על חומר קודם.
@@ -103,10 +103,10 @@
 Nahw Arabic Tashkeel Speech Dataset מכיל 1,093 הקלטות של דוברי ערבית ילידיים, משפטים מנוקדים, קבצי WAV מונו ב-16 kHz ורישיון CC BY 4.0. נבחר קטעים שהתמלול שלהם מתאים בדיוק למשימות הבנת הנשמע. בכל קטע תישמר הפניה למקור, לתמלול ולקרדיט.
 
 ### דיבור מסונתז — MSA
-Nabra-7M-Distill הוא מודל TTS קטן (כ-28.7MB, Apache 2.0) שנועד לייצר דיבור MSA על המכשיר. נבחן הטמעה מלאה של המודל, מנוע ההגייה והקבצים הנלווים בתוך חבילת האפליקציה. הממשק יסמן זאת כ"קול ממוחשב". יש לכלול גם את הודעות הרישוי של רכיבי צד שלישי, כולל eSpeak-NG (GPL-3.0-or-later) אם ייכלל במוצר.
+Nabra-7M-Distill משמש בגרסה 2.0 ליצירת קובצי WAV בערבית ספרותית בזמן הבנייה בלבד. המשקולות, סביבת Node ומנוע היצירה אינם נכללים ב-APK או ב-EXE; הקבצים המוגמרים נארזים להפעלה אופליין. המודל וקוד היצירה מתועדים ברישיון Apache-2.0. יש לבדוק בנפרד את רישיונות כלי הבנייה והתלויות שלהם בכל שינוי של סביבת היצירה.
 
-### דיבור פלסטיני
-אין כרגע מקור מאומת שמכסה בדיוק את המבטא הפלסטיני ומאפשר להטמיע, לערוך ולהפיץ קטעים בתוך חבילת Offline. מאגרים המסומנים כירדניים או כלל-לבנטיניים לא ימותגו כפלסטיניים. עד למציאת מקור מתאים, המסלול הפלסטיני יכלול טקסט, תרגול קריאה ותעתיק עזר; נשלים שמע מתאים רק ממקור מורשה או מהקלטה שניתנה להפצה ברישיון ברור.
+### דיבור פלסטיני — מצב מימוש בגרסה 2.0
+מסלול הערבית המדוברת משתמש בקובצי WAV סינתטיים שנוצרים בזמן הבנייה באמצעות Sofelia TTS 82M (קול Eliaa). המודל מסומן ברישיון Apache-2.0, והשמע נארז מראש באפליקציה. אלו קולות ממוחשבים ולא הקלטות אנושיות. אין לסמן דיבור ירדני או כלל-לבנטיני כפלסטיני, ואין להכניס מאגר חדש ללא רישיון מפורש ואימות התאמת המבטא.
 
 ## עיצוב וחוויית שימוש
 - אותו קו של StepUp English: רקע בהיר, כרטיסים לבנים, סגול כצבע הדגשה, פינות מעוגלות, צללים עדינים וסרגל ניווט צדדי.
@@ -126,7 +126,7 @@ Nabra-7M-Distill הוא מודל TTS קטן (כ-28.7MB, Apache 2.0) שנועד �
 
 ## ארכיטקטורה
 - ממשק משותף מבוסס HTML/CSS/JavaScript.
-- תוכן הלימוד ינוהל בנתוני JSON נפרדים כדי לאפשר בדיקות לשוניות ואחידות.
+- מקור התוכן הנוכחי הוא אובייקט JSON המוטמע ב-index.html; scripts/content_review.py מייצא אותו לקובץ JSON חיצוני להגהה ומחזיר רק שדות שסומנו במפורש כמאושרים. הפרדה מלאה לקובץ נתונים חיצוני היא שדרוג ארכיטקטוני עתידי.
 - Windows: Go + WebView2; כל התוכן והנכסים נארזים עם היישום.
 - Android: WebView מקומי; הנכסים נארזים ב-APK; אין הרשאת INTERNET.
 - GitHub Actions יבנה EXE ו-APK ויריץ בדיקות לפני פרסום ארטיפקטים.
@@ -142,3 +142,10 @@ Nabra-7M-Distill הוא מודל TTS קטן (כ-28.7MB, Apache 2.0) שנועד �
 8. בדיקת APK על אמולטור ובדיקת EXE על Windows runner.
 9. סריקה לוודא שאין קריאות רשת לא נחוצות או קובצי מדיה חסרי רישיון.
 10. בדיקת התקנה נקייה במכשיר חדש לפני הפצת הגרסה.
+
+
+## StepUp Arabic 2.0 upgrade scope
+
+The 2.0 branch expands the course from 49 to 57 units (24 Palestinian spoken + 33 MSA), adds separate offline speech files for every lesson example, and introduces a dictionary, favorites, spaced repetition, daily learning goals, audio-speed controls, dark theme, achievements and seven-day activity chart. These additions share the same HTML application embedded by the Windows and Android packaging workflows.
+
+Multi-speaker evaluation remains separate from production: the current lightweight Palestinian model is single-speaker. The larger voice-cloning checkpoint requires reference speech and heavier dependencies; multi-speaker alternatives reviewed so far either lack Palestinian coverage or impose non-commercial restrictions. No unsupported voice has been labelled as Palestinian or shipped in this branch.

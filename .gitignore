@@ -1,0 +1,8 @@
+# Android release signing material must never be committed.
+*.jks
+*.keystore
+*.keystore.properties
+android/app/release/
+
+# Local teacher review exports may contain unpublished editorial data.
+content-review.json

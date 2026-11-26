@@ -55,3 +55,17 @@ The Nabra engine runs only during the build process. Only the resulting WAV file
 All generated and human-recorded WAV files, the Arabic font, and its license are included in both installers. After installation, playback and Arabic text rendering do not require an Arabic Windows language pack, a separate speech engine, or an Internet connection.
 
 The build-generated manifests under `generated/` identify each text, lesson, voice/model, language variety, and license.
+
+
+## Generated lesson example sentences (StepUp Arabic 2.0)
+
+All example sentences attached to the 57 lessons receive a separate generated WAV file during the build:
+- Palestinian spoken track: Sofelia TTS 82M, Eliaa voice, Apache-2.0 model.
+- Modern Standard Arabic track: Nabra-7M-Distill, Apache-2.0 model.
+- Output: 24 kHz mono PCM WAV.
+These are AI-synthesized examples, not human recordings. The translation and lesson ID are recorded in the generated manifest.
+
+
+## Asset and license audit
+
+The authoritative inventory of bundled audio and font assets is maintained in `docs/license-audit.md`. The CI verifier cross-checks each generated WAV against its source text, lesson ID, dialect label and model-license metadata, and checks the five human-recorded clips against their CC BY 4.0 attribution manifest. Build-time TTS dependencies are not packaged in the end-user installers.

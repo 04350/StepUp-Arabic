@@ -13,7 +13,14 @@ const key = html.match(/const KEY="([^"]+)"/)?.[1];
 const emptyText = html.match(/const EMPTY=(\{[^\n]+\});/)?.[1];
 assert(key && emptyText, "Storage key or empty state is missing");
 const empty = vm.runInNewContext("(" + emptyText + ")");
-const functions = ["normalizeState", "loadState", "save", "createBackupPayload", "restoreBackupPayload"].map(extractFunction).join("\n");
+const curriculumMatch = html.match(/const CURRICULUM = (\{[\s\S]*?\});[\s\S]*?const LETTERS=/);
+assert(curriculumMatch, "Curriculum is required for backup validation tests");
+const curriculum = JSON.parse(curriculumMatch[1]);
+const allLessons = [
+  ...curriculum.spoken.map(lesson => ({ ...lesson, track: "spoken" })),
+  ...curriculum.formal.map(lesson => ({ ...lesson, track: "formal" }))
+];
+const functions = ["normalizeState", "loadState", "save", "createBackupPayload", "validateBackupState", "restoreBackupPayload"].map(extractFunction).join("\n");
 
 function makeContext({ localStorage, nativeStore }) {
   const window = {
@@ -33,6 +40,7 @@ function makeContext({ localStorage, nativeStore }) {
   vm.runInContext(
     "const KEY=" + JSON.stringify(key) + ";\n" +
     "const EMPTY=" + JSON.stringify(empty) + ";\n" +
+    "const ALL_LESSONS=" + JSON.stringify(allLessons) + ";\n" +
     functions + "\n" +
     "let state=loadState();\n" +
     "globalThis.readState=()=>state;\n" +
@@ -54,6 +62,12 @@ assert.equal(current.preferences.activeTrack, "formal", "Default track should be
 current.completed.push("ms-a1");
 current.preferences.activeTrack = "spoken";
 current.scores["ms-a1"] = 90;
+current.favorites = ["sp-01|مَرْحَبَا"];
+current.reviewStats = {"sp-01|مَرْحَبَا": {repetitions: 2, intervalDays: 3, lastReviewedAt: "2026-11-23T10:00:00.000Z", dueAt: 1795773600000}};
+current.preferences.theme = "dark";
+current.preferences.dailyGoal = 15;
+current.preferences.audioSpeed = 0.75;
+current.preferences.arabicFontSize = 1.3;
 current.finalExams.push({at:"2026-11-18T12:00:00.000Z",score:90,correct:9,total:10,lessons:["ms-a1"]});
 browserContext.writeState(current);
 assert.equal(browserContext.save(), true, "Save should succeed in browser storage");
@@ -66,6 +80,12 @@ const reloaded = JSON.parse(JSON.stringify(reloadedContext.readState()));
 assert.deepEqual(reloaded.completed, ["ms-a1"], "Completed lessons should survive restart");
 assert.equal(reloaded.preferences.activeTrack, "spoken", "Selected learning track should survive restart");
 assert.equal(reloaded.scores["ms-a1"], 90, "Lesson score should survive restart");
+assert.deepEqual(reloaded.favorites, ["sp-01|مَرْحَبَا"], "Favorite words should survive restart");
+assert.equal(reloaded.reviewStats["sp-01|مَرْحَبَا"].repetitions, 2, "Spaced repetition schedule should survive restart");
+assert.equal(reloaded.preferences.theme, "dark", "Theme preference should survive restart");
+assert.equal(reloaded.preferences.dailyGoal, 15, "Daily learning goal should survive restart");
+assert.equal(reloaded.preferences.audioSpeed, 0.75, "Audio speed should survive restart");
+assert.equal(reloaded.preferences.arabicFontSize, 1.3, "Arabic font size should survive restart");
 assert.equal(reloaded.finalExams[0].score,90,"Final exam history should survive restart");
 const exported = browserContext.createBackupPayload();
 assert.equal(exported.app, "StepUp Arabic", "Backup must identify its application");
@@ -77,8 +97,27 @@ const restoredPayload = browserContext.restoreBackupPayload(JSON.parse(JSON.stri
 assert.deepEqual(JSON.parse(JSON.stringify(restoredPayload.completed)), ["ms-a1"], "Versioned backup should restore completed lessons");
 const legacyPayload = browserContext.restoreBackupPayload({ completed: ["ms-a1"], scores: { "ms-a1": 90 }, mistakes: {}, preferences: { activeTrack: "spoken" } });
 assert.deepEqual(JSON.parse(JSON.stringify(legacyPayload.completed)), ["ms-a1"], "Legacy unwrapped backup should restore");
-assert.throws(() => browserContext.restoreBackupPayload({ app: "Different App", state: {} }), /Wrong application/);
-assert.throws(() => browserContext.restoreBackupPayload(null), /Invalid backup/);
+assert.equal(legacyPayload.preferences.arabicFontSize, 1, "Legacy backups should receive the default Arabic font size");
+assert.throws(() => browserContext.restoreBackupPayload({ app: "Different App", schema: 2, state: {} }), /אינו גיבוי/);
+assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 99, state: {} }), /גרסת הגיבוי/);
+assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2, state: [] }), /מבנה הגיבוי/);
+assert.throws(() => browserContext.restoreBackupPayload({ app: "StepUp Arabic", schema: 2 }), /מבנה הגיבוי/);
+
+const validEnvelope = JSON.parse(JSON.stringify(browserContext.createBackupPayload()));
+const badCompleted = JSON.parse(JSON.stringify(validEnvelope));
+badCompleted.state.completed = ["lesson-does-not-exist"];
+assert.throws(() => browserContext.restoreBackupPayload(badCompleted), /מזהה שיעור לא מוכר/);
+const badScores = JSON.parse(JSON.stringify(validEnvelope));
+badScores.state.scores = {"ms-a1": 140};
+assert.throws(() => browserContext.restoreBackupPayload(badScores), /ציון לא תקין/);
+const badFavorites = JSON.parse(JSON.stringify(validEnvelope));
+badFavorites.state.favorites = ["not-a-real-lesson|word"];
+assert.throws(() => browserContext.restoreBackupPayload(badFavorites), /מועדף שאינו קיים/);
+const missingRequired = JSON.parse(JSON.stringify(validEnvelope));
+delete missingRequired.state.reviewStats;
+assert.throws(() => browserContext.restoreBackupPayload(missingRequired), /חסר שדה חובה/);
+
+assert.throws(() => browserContext.restoreBackupPayload(null), /מבנה הגיבוי/);
 
 // If WebView localStorage is unavailable, Android's private progress file is the fallback.
 const brokenStorage = {
@@ -107,4 +146,52 @@ assert.deepEqual(JSON.parse(JSON.stringify(newestContext.readState())).completed
 memory.set(key, "{broken-json");
 const corruptedContext = makeContext({ localStorage: normalStorage, nativeStore: native });
 assert.deepEqual(JSON.parse(JSON.stringify(corruptedContext.readState())).completed, ["ms-a1"]);
-console.log("Persistence tests passed: browser save, restart restore, Android fallback and recovery from malformed local data.");
+
+// Full cross-platform backup interchange: Android -> Windows -> Android.
+const androidOnlyStore = { value: "", writes: 0 };
+const androidOnlyContext = makeContext({ localStorage: brokenStorage, nativeStore: androidOnlyStore });
+const androidProgress = JSON.parse(JSON.stringify(androidOnlyContext.readState()));
+androidProgress.completed = ["ms-a1", "sp-01"];
+androidProgress.scores = {"ms-a1": 95};
+androidProgress.favorites = ["sp-01|مَرْحَبَا"];
+androidProgress.reviewStats = {"sp-01|مَرْحَبَا": {repetitions: 3, intervalDays: 7, lastReviewedAt: "2026-11-23T10:00:00.000Z", dueAt: 1795773600000}};
+androidProgress.preferences.activeTrack = "spoken";
+androidProgress.preferences.theme = "dark";
+androidProgress.preferences.dailyGoal = 20;
+androidProgress.preferences.audioSpeed = 0.75;
+androidProgress.preferences.arabicFontSize = 1.5;
+androidOnlyContext.writeState(androidProgress);
+assert.equal(androidOnlyContext.save(), true, "Android source device should save native progress");
+const androidBackup = androidOnlyContext.createBackupPayload();
+
+const windowsMemory = new Map();
+const windowsStorage = {
+  getItem(k) { return windowsMemory.has(k) ? windowsMemory.get(k) : null; },
+  setItem(k, v) { windowsMemory.set(k, String(v)); }
+};
+const windowsNative = { value: "", writes: 0 };
+const windowsContext = makeContext({ localStorage: windowsStorage, nativeStore: windowsNative });
+const fromAndroid = windowsContext.restoreBackupPayload(JSON.parse(JSON.stringify(androidBackup)));
+windowsContext.writeState(fromAndroid);
+assert.equal(windowsContext.save(), true, "Windows should import and save the Android backup");
+const windowsReload = makeContext({ localStorage: windowsStorage, nativeStore: windowsNative });
+const windowsState = JSON.parse(JSON.stringify(windowsReload.readState()));
+assert.deepEqual(windowsState.completed, ["ms-a1", "sp-01"], "Android progress should transfer to Windows");
+assert.deepEqual(windowsState.favorites, ["sp-01|مَرْحَبَا"], "Favorites should transfer to Windows");
+assert.equal(windowsState.reviewStats["sp-01|مَرْحَبَا"].intervalDays, 7, "Review schedule should transfer to Windows");
+assert.equal(windowsState.preferences.arabicFontSize, 1.5, "Arabic font setting should transfer to Windows");
+
+const windowsBackup = windowsReload.createBackupPayload();
+const androidTargetStore = { value: "", writes: 0 };
+const androidTarget = makeContext({ localStorage: brokenStorage, nativeStore: androidTargetStore });
+const fromWindows = androidTarget.restoreBackupPayload(JSON.parse(JSON.stringify(windowsBackup)));
+androidTarget.writeState(fromWindows);
+assert.equal(androidTarget.save(), true, "Android should import and save the Windows backup");
+const androidTargetReload = makeContext({ localStorage: brokenStorage, nativeStore: androidTargetStore });
+const androidRestored = JSON.parse(JSON.stringify(androidTargetReload.readState()));
+assert.deepEqual(androidRestored.completed, ["ms-a1", "sp-01"], "Windows progress should transfer back to Android");
+assert.equal(androidRestored.scores["ms-a1"], 95, "Exam scores should survive two-way transfer");
+assert.equal(androidRestored.preferences.audioSpeed, 0.75, "Audio settings should survive two-way transfer");
+assert.equal(androidRestored.preferences.theme, "dark", "Theme should survive two-way transfer");
+
+console.log("Persistence tests passed: save/restore, corrupt data recovery, schema validation and Android <-> Windows backup interchange.");
