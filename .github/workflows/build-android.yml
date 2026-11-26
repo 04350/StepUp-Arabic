@@ -120,6 +120,7 @@ jobs:
           cp -R audio/fonts/. android/app/src/main/assets/audio/fonts/
 
       - name: Configure persistent Android signing key
+        id: configure_signing
         if: github.ref == 'refs/heads/main'
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -127,28 +128,39 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          missing=0
           for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
             if [ -z "${!name}" ]; then
-              echo "::error::Missing GitHub Actions secret: $name"
-              echo "Create a persistent Android signing key and add all four secrets before building the main-branch APK."
-              exit 1
+              echo "::warning::Missing GitHub Actions secret: $name"
+              missing=1
             fi
           done
+          if [ "$missing" -ne 0 ]; then
+            echo "Android Release signing is not configured; building a Debug test APK only."
+            echo "ANDROID_SIGNING_CONFIGURED=false" >> "$GITHUB_ENV"
+            echo "STEPUP_RELEASE_APK_PATH=" >> "$GITHUB_ENV"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           KEYSTORE_PATH="$RUNNER_TEMP/stepup-arabic-release.jks"
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias "$ANDROID_KEY_ALIAS" >/dev/null
           {
             printf 'ANDROID_KEYSTORE_PATH=%s\n' "$KEYSTORE_PATH"
             printf 'ANDROID_KEYSTORE_PASSWORD=%s\n' "$ANDROID_KEYSTORE_PASSWORD"
             printf 'ANDROID_KEY_ALIAS=%s\n' "$ANDROID_KEY_ALIAS"
             printf 'ANDROID_KEY_PASSWORD=%s\n' "$ANDROID_KEY_PASSWORD"
+            printf 'ANDROID_SIGNING_CONFIGURED=true\n'
+            printf 'STEPUP_RELEASE_APK_PATH=android/app/build/outputs/apk/release/app-release.apk\n'
           } >> "$GITHUB_ENV"
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Build Android APKs
         working-directory: android
         run: |
           gradle --no-daemon --stacktrace :app:assembleDebug
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+          if [ "${ANDROID_SIGNING_CONFIGURED:-false}" = "true" ]; then
             gradle --no-daemon --stacktrace :app:assembleRelease
           fi
 
@@ -162,7 +174,7 @@ jobs:
           source = Path("../index.html").read_bytes()
           apk_paths = [Path("app/build/outputs/apk/debug/app-debug.apk")]
           import os
-          if os.environ.get("GITHUB_REF") == "refs/heads/main":
+          if os.environ.get("ANDROID_SIGNING_CONFIGURED") == "true":
               apk_paths.append(Path("app/build/outputs/apk/release/app-release.apk"))
           for apk in apk_paths:
               assert apk.is_file() and apk.stat().st_size > 100_000, f"APK missing or unexpectedly small: {apk}"
@@ -194,7 +206,7 @@ jobs:
           APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -n "$APKSIGNER" || { echo "apksigner was not found in Android build-tools"; exit 1; }
           "$APKSIGNER" verify --verbose app/build/outputs/apk/debug/app-debug.apk
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+          if [ "${ANDROID_SIGNING_CONFIGURED:-false}" = "true" ]; then
             "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
           fi
 
@@ -206,8 +218,6 @@ jobs:
 
       - name: Smoke test on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
-        env:
-          STEPUP_RELEASE_APK_PATH: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/app-release.apk' || '' }}
         with:
           api-level: 29
           target: google_apis
@@ -220,22 +230,23 @@ jobs:
 
       - name: Prepare a clearly named APK
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/StepUp-Arabic-v2.0.0.apk
+          mkdir -p android/app/build/outputs/apk
+          if [ "${ANDROID_SIGNING_CONFIGURED:-false}" = "true" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/StepUp-Arabic-v2.0.0.apk
           else
-            cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk
+            cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/StepUp-Arabic-v2.0.0.apk
           fi
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
           name: StepUp-Arabic-Android
-          path: ${{ github.ref == 'refs/heads/main' && 'android/app/build/outputs/apk/release/StepUp-Arabic-v2.0.0.apk' || 'android/app/build/outputs/apk/debug/StepUp-Arabic-v2.0.0.apk' }}
+          path: android/app/build/outputs/apk/StepUp-Arabic-v2.0.0.apk
           if-no-files-found: error
           retention-days: 30
 
       - name: Publish direct APK download on GitHub Releases
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.configure_signing.outputs.configured == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v2.0.0
