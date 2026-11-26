@@ -55,7 +55,9 @@ const androidWorkflow = fs.readFileSync(".github/workflows/build-android.yml", "
 assert(androidSmoke.includes("SAVE_PROGRESS_SUCCESS") && androidSmoke.includes('"restored":true'), "Android emulator smoke test must verify initial save and restart restore");
 assert(androidWorkflow.includes("script: python tests/android-emulator-smoke.py"), "Android workflow must run the standalone Python smoke test rather than multiline shell loops");
 assert(androidWorkflow.includes("printf 'ANDROID_KEYSTORE_PASSWORD=%s\\n' \"$ANDROID_KEYSTORE_PASSWORD\"") && androidWorkflow.includes("printf 'ANDROID_KEY_ALIAS=%s\\n' \"$ANDROID_KEY_ALIAS\"") && androidWorkflow.includes("printf 'ANDROID_KEY_PASSWORD=%s\\n' \"$ANDROID_KEY_PASSWORD\""), "Android workflow must export all persistent signing credentials to the Gradle build step");
+assert(androidWorkflow.includes("keytool -list -keystore") && androidWorkflow.includes("ANDROID_SIGNING_CONFIGURED=true"), "Android workflow must validate the persistent signing key before building Release");
 assert(androidWorkflow.includes(":app:assembleRelease") && androidWorkflow.includes("app/build/outputs/apk/release/app-release.apk"), "Main-branch Android publication must build and verify a Release APK");
+assert(androidWorkflow.includes("steps.configure_signing.outputs.configured == 'true'") && androidWorkflow.includes("ANDROID_SIGNING_CONFIGURED:-false"), "Android workflow must skip official Release publication when persistent signing is not configured while retaining Debug CI");
 
 const windowsWorkflow = fs.readFileSync(".github/workflows/build-desktop.yml", "utf8");
 assert(windowsWorkflow.includes("scripts/generate_nabra_audio.mjs") && windowsWorkflow.includes("scripts/generate_sofelia_audio.py") && windowsWorkflow.includes("audio/fonts"), "Windows workflow must generate and embed all Arabic speech and font files");
