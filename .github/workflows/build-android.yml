@@ -138,10 +138,10 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
           {
-            printf 'ANDROID_KEYSTORE_PATH=%s\\n' "$KEYSTORE_PATH"
-            printf 'ANDROID_KEYSTORE_PASSWORD=%s\\n' "$ANDROID_KEYSTORE_PASSWORD"
-            printf 'ANDROID_KEY_ALIAS=%s\\n' "$ANDROID_KEY_ALIAS"
-            printf 'ANDROID_KEY_PASSWORD=%s\\n' "$ANDROID_KEY_PASSWORD"
+            printf 'ANDROID_KEYSTORE_PATH=%s\n' "$KEYSTORE_PATH"
+            printf 'ANDROID_KEYSTORE_PASSWORD=%s\n' "$ANDROID_KEYSTORE_PASSWORD"
+            printf 'ANDROID_KEY_ALIAS=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'ANDROID_KEY_PASSWORD=%s\n' "$ANDROID_KEY_PASSWORD"
           } >> "$GITHUB_ENV"
 
       - name: Build Android APKs
